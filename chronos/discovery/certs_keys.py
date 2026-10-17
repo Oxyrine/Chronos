@@ -1,4 +1,5 @@
 """Scanner: certificates and key material (PEM, DER, PKCS#12, JKS). Reads file contents only; never opens network connections."""
+import datetime
 import hashlib
 import logging
 import os
@@ -37,6 +38,12 @@ def key_info(key) -> tuple[str, dict]:
     return type(key).__name__, {}
 
 
+def _utc(cert: x509.Certificate, which: str) -> str:
+    """not_valid_before/after as UTC ISO text. cryptography < 42 (Ubuntu 24.04's apt build) only has the naive attribute."""
+    v = getattr(cert, f"{which}_utc", None)
+    return (v if v is not None else getattr(cert, which).replace(tzinfo=datetime.timezone.utc)).isoformat()
+
+
 def cert_asset(cert: x509.Certificate, path: str, line: int | None = None) -> dict:
     alg, params = key_info(cert.public_key())
     try:
@@ -46,7 +53,7 @@ def cert_asset(cert: x509.Certificate, path: str, line: int | None = None) -> di
     params |= {
         "signature_algorithm": cert.signature_algorithm_oid._name,
         "subject": cert.subject.rfc4514_string(), "issuer": cert.issuer.rfc4514_string(),
-        "not_before": cert.not_valid_before_utc.isoformat(), "not_after": cert.not_valid_after_utc.isoformat(),
+        "not_before": _utc(cert, "not_valid_before"), "not_after": _utc(cert, "not_valid_after"),
         "is_ca": ca, "certificate_format": "X.509",
     }
     fp = cert.fingerprint(hashes.SHA256()).hex()
