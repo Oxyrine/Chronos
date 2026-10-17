@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "cryptographic-asset"
+    },
+    "bom-ref": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "cryptoProperties": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "assetType": {
+          "type": "string",
+          "enum": [
+            "algorithm",
+            "protocol",
+            "certificate",
+            "related-crypto-material"
+          ]
+        }
+      },
+      "required": [
+        "assetType"
+      ],
+      "additionalProperties": true
+    },
+    "evidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "occurrences": {
+          "type": "array",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string"
+              },
+              "line": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "location"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "occurrences"
+      ],
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "type",
+    "bom-ref",
+    "name",
+    "cryptoProperties",
+    "properties"
+  ],
+  "additionalProperties": true
+}

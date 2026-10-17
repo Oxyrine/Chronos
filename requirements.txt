@@ -1,0 +1,15 @@
+pyyaml
+jsonschema>=4.18
+cryptography
+numpy
+scikit-learn
+scipy
+joblib
+faker
+fastapi
+pydantic
+pytest
+httpx
+# VM only (s390x): pip wheels for these may not exist on x86/Windows
+# pyjks        needs a C compiler for its twofish dependency on Windows; JKS scanning is skipped with a warning without it
+# snapml       Snap ML BoostingMachineClassifier; falls back to sklearn HistGradientBoosting and records the backend in metrics

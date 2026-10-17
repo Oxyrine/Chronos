@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "ts": {
+      "type": "string"
+    },
+    "client": {
+      "type": "string"
+    },
+    "uri": {
+      "type": "string"
+    },
+    "bytes": {
+      "type": "integer"
+    },
+    "proto": {
+      "type": "string"
+    },
+    "group": {
+      "type": "string"
+    },
+    "kex_class": {
+      "type": "string",
+      "enum": [
+        "classical",
+        "hybrid",
+        "pq"
+      ]
+    },
+    "store": {
+      "type": "string"
+    },
+    "records_est": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ts",
+    "client",
+    "uri",
+    "bytes",
+    "proto",
+    "group",
+    "kex_class",
+    "store",
+    "records_est"
+  ],
+  "additionalProperties": true
+}

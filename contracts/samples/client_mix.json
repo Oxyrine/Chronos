@@ -1,0 +1,10 @@
+{
+  "mix": {
+    "hybrid_capable": 70,
+    "legacy": 30
+  },
+  "q": {
+    "internet->portal": 0.3,
+    "lab-api->partner-lab": 0.0
+  }
+}

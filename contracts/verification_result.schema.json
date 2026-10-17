@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "evidence": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "passed",
+          "evidence"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "diff_sha256": {
+      "type": "string"
+    },
+    "log_path": {
+      "type": "string"
+    },
+    "duration_s": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "status",
+    "checks",
+    "diff_sha256",
+    "log_path",
+    "duration_s"
+  ],
+  "additionalProperties": true
+}

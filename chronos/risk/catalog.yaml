@@ -1,0 +1,16 @@
+# Quantum status by algorithm (spec 9.1). First matching rule wins, so hybrids sit above their classical halves.
+# `match` is a case-insensitive regex tested against the normalised algorithm name.
+rules:
+  - {match: "mlkem|ml-kem|sntrup|kyber", status: resistant, why: "hybrid or pure post-quantum KEM"}
+  - {match: "ml-dsa|mldsa|dilithium|slh-dsa|sphincs", status: resistant, why: "post-quantum signature"}
+  - {match: "^rsa|rsa-oaep|rsaes|sha[0-9]*withrsa", status: vulnerable, why: "Shor: factoring"}
+  - {match: "^dsa$|^dh$|diffie|^ffdhe|^ecdh|^ecdsa|^ec$|secp[0-9]+r1|prime256v1|^p-?(256|384|521)$|x25519|x448|ed25519|ed448|curve25519|^ecc", status: vulnerable, why: "Shor: discrete log"}
+  - {match: "aes-?128|^3des|^des", status: weakened, why: "reported for information only, not scored"}
+  - {match: "aes-?256|chacha20|sha-?(256|384|512)|sha-?3|hmac|^aes", status: resistant, why: "no efficient quantum attack at these sizes"}
+  - {match: "sha-?1$|^sha1|md5", status: resistant, why: "quantum-resistant in this model; flagged classical_weak instead"}
+# Shown separately, never part of the quantum score.
+classical_weak:
+  - "sha-?1$|^sha1"
+  - "md5"
+  - "aes.*ecb|ecb"
+  - "3des|^des"

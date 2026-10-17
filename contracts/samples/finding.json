@@ -1,0 +1,25 @@
+{
+  "finding_id": "F-0007",
+  "bom_ref": "crypto/rsa-2048/lab-api/crypto_utils.py:42",
+  "asset_type": "algorithm",
+  "usage": "key_exchange",
+  "algorithm": "RSA-OAEP",
+  "params": {
+    "key_bits": 2048
+  },
+  "quantum_status": "vulnerable",
+  "classical_weak": false,
+  "service": "lab-api",
+  "channels": [
+    "lab-api->partner-lab"
+  ],
+  "location": {
+    "path": "demo/lab-api/crypto_utils.py",
+    "line": 42
+  },
+  "fix_class": "code_change",
+  "sources": [
+    "python_ast"
+  ],
+  "confidence": 1.0
+}

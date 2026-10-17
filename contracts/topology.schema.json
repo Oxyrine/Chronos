@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "channels": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "src": {
+            "type": "string"
+          },
+          "dst": {
+            "type": "string"
+          },
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "tls",
+              "ssh"
+            ]
+          },
+          "port": {
+            "type": "integer"
+          },
+          "reach": {
+            "type": "string",
+            "enum": [
+              "internet",
+              "partner",
+              "internal"
+            ]
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "src",
+          "dst",
+          "protocol",
+          "reach",
+          "tables"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "tables": {
+      "type": "object",
+      "additionalProperties": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "integer"
+          },
+          "store": {
+            "type": "string"
+          },
+          "mean_record_bytes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "records"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "channels",
+    "tables"
+  ],
+  "additionalProperties": true
+}

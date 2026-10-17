@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "pattern": "^F-[0-9]{4}$"
+    },
+    "bom_ref": {
+      "type": "string"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "algorithm",
+        "protocol",
+        "certificate",
+        "related-crypto-material"
+      ]
+    },
+    "usage": {
+      "type": "string",
+      "enum": [
+        "key_exchange",
+        "encryption",
+        "signature",
+        "hash",
+        "symmetric",
+        "protocol"
+      ]
+    },
+    "algorithm": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object"
+    },
+    "quantum_status": {
+      "type": "string",
+      "enum": [
+        "vulnerable",
+        "weakened",
+        "resistant"
+      ]
+    },
+    "classical_weak": {
+      "type": "boolean"
+    },
+    "service": {
+      "type": "string"
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": true
+    },
+    "fix_class": {
+      "type": "string",
+      "enum": [
+        "config",
+        "library",
+        "code_change",
+        "vendor",
+        "hardware"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "finding_id",
+    "bom_ref",
+    "asset_type",
+    "usage",
+    "algorithm",
+    "params",
+    "quantum_status",
+    "classical_weak",
+    "service",
+    "channels",
+    "location",
+    "fix_class",
+    "sources",
+    "confidence"
+  ],
+  "additionalProperties": true
+}

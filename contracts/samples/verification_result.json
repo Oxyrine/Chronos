@@ -1,0 +1,24 @@
+{
+  "proposal_id": "P-0003",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "pq_handshake",
+      "passed": true,
+      "evidence": "Negotiated TLS1.3 group: X25519MLKEM768"
+    },
+    {
+      "name": "classical_compat",
+      "passed": true,
+      "evidence": "Negotiated TLS1.3 group: X25519"
+    },
+    {
+      "name": "health",
+      "passed": true,
+      "evidence": "200"
+    }
+  ],
+  "diff_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "log_path": "out/verify/P-0003.log",
+  "duration_s": 41.2
+}

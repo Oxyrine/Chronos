@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "store": {
+      "type": "string"
+    },
+    "table": {
+      "type": "string"
+    },
+    "column": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "genetic",
+        "child_health",
+        "clinical",
+        "identity",
+        "financial",
+        "contact",
+        "pseudonymous_id",
+        "scheduling",
+        "auth_secret",
+        "non_sensitive"
+      ]
+    },
+    "policy_years": {
+      "type": "number"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "probabilities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "decided_by": {
+      "type": "string",
+      "enum": [
+        "model",
+        "llm",
+        "override"
+      ]
+    },
+    "top_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "override": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "store",
+    "table",
+    "column",
+    "category",
+    "policy_years",
+    "policy_version",
+    "probabilities",
+    "decided_by",
+    "top_features",
+    "model_version",
+    "override"
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "seq": {
+      "type": "integer"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "verification_sha256": {
+      "type": "string"
+    },
+    "cbom_sha256": {
+      "type": "string"
+    },
+    "prev_hash": {
+      "type": "string"
+    },
+    "alg": {
+      "const": "ML-DSA-65"
+    },
+    "sig_b64": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "seq",
+    "ts",
+    "proposal_id",
+    "approved_by",
+    "verification_sha256",
+    "cbom_sha256",
+    "prev_hash",
+    "alg",
+    "sig_b64"
+  ],
+  "additionalProperties": true
+}

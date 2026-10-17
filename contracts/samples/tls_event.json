@@ -1,0 +1,11 @@
+{
+  "ts": "2026-10-18T01:00:00Z",
+  "client": "10.0.4.17",
+  "uri": "/api/patients/export",
+  "bytes": 812344,
+  "proto": "TLSv1.3",
+  "group": "X25519",
+  "kex_class": "classical",
+  "store": "patients",
+  "records_est": 1650
+}

@@ -1,0 +1,20 @@
+{
+  "proposal_id": "P-0003",
+  "finding_id": "F-0001",
+  "template_id": "T1_nginx_hybrid_groups",
+  "params": {
+    "groups": [
+      "X25519MLKEM768",
+      "X25519",
+      "prime256v1"
+    ],
+    "protocols": [
+      "TLSv1.3",
+      "TLSv1.2"
+    ]
+  },
+  "rationale": "Portal key exchange is classical-only and carries patient data with a 50-year policy period; hybrid group keeps old clients working.",
+  "compatibility_risk": "low",
+  "requires_human": true,
+  "model": "granite-3.3-2b-instruct-q8_0-be"
+}

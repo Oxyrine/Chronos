@@ -1,0 +1,46 @@
+{
+  "type": "cryptographic-asset",
+  "bom-ref": "crypto/rsa-2048/lab-api/crypto_utils.py:42",
+  "name": "RSA-2048",
+  "cryptoProperties": {
+    "assetType": "algorithm",
+    "oid": "1.2.840.113549.1.1.1",
+    "algorithmProperties": {
+      "primitive": "pke",
+      "parameterSetIdentifier": "2048",
+      "executionEnvironment": "software-plain-ram",
+      "implementationPlatform": "s390x",
+      "cryptoFunctions": [
+        "encapsulate",
+        "decapsulate"
+      ],
+      "nistQuantumSecurityLevel": 0
+    }
+  },
+  "evidence": {
+    "occurrences": [
+      {
+        "location": "demo/lab-api/crypto_utils.py",
+        "line": 42
+      }
+    ]
+  },
+  "properties": [
+    {
+      "name": "chronos:finding_id",
+      "value": "F-0007"
+    },
+    {
+      "name": "chronos:quantum_status",
+      "value": "vulnerable"
+    },
+    {
+      "name": "chronos:sources",
+      "value": "python_ast,cbomkit-theia"
+    },
+    {
+      "name": "chronos:method",
+      "value": "deterministic"
+    }
+  ]
+}

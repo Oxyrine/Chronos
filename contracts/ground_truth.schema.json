@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "assets": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "asset_type": {
+            "type": "string"
+          },
+          "algorithm": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object"
+          },
+          "quantum_status": {
+            "type": "string",
+            "enum": [
+              "vulnerable",
+              "weakened",
+              "resistant"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "path",
+          "asset_type",
+          "algorithm",
+          "quantum_status"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "assets"
+  ],
+  "additionalProperties": true
+}

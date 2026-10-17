@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mix": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "hybrid_capable": {
+          "type": "integer"
+        },
+        "legacy": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "hybrid_capable",
+        "legacy"
+      ],
+      "additionalProperties": true
+    },
+    "q": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    }
+  },
+  "required": [
+    "q"
+  ],
+  "additionalProperties": true
+}

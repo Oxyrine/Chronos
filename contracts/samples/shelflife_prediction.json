@@ -1,0 +1,22 @@
+{
+  "store": "records-db",
+  "table": "genomics_results",
+  "column": "variant_hgvs",
+  "category": "genetic",
+  "policy_years": 75,
+  "policy_version": "policy-1.0",
+  "probabilities": {
+    "genetic": 0.8,
+    "clinical": 0.16,
+    "identity": 0.03,
+    "contact": 0.01
+  },
+  "decided_by": "model",
+  "top_features": [
+    "pattern:hgvs=0.97",
+    "name:variant",
+    "fk:patients"
+  ],
+  "model_version": "category-1.0.0",
+  "override": null
+}

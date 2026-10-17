@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "channel": {
+      "type": "string"
+    },
+    "store_table": {
+      "type": "string"
+    },
+    "scenario": {
+      "type": "string",
+      "pattern": "^(early_2030|base_2033|late_2035|custom_[0-9]{4})$"
+    },
+    "x_years": {
+      "type": "number"
+    },
+    "y_years": {
+      "type": "number"
+    },
+    "z_years": {
+      "type": "number"
+    },
+    "margin": {
+      "type": "number"
+    },
+    "exposed": {
+      "type": "boolean"
+    },
+    "kex_class": {
+      "type": "string",
+      "enum": [
+        "classical",
+        "hybrid",
+        "pq"
+      ]
+    },
+    "classical_share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "records": {
+      "type": "integer"
+    },
+    "priority": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "driving_finding": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "channel",
+    "store_table",
+    "scenario",
+    "x_years",
+    "y_years",
+    "z_years",
+    "margin",
+    "exposed",
+    "kex_class",
+    "classical_share",
+    "records",
+    "priority",
+    "driving_finding"
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "ts": {
+      "type": "string"
+    },
+    "client": {
+      "type": "string"
+    },
+    "window_s": {
+      "type": "integer"
+    },
+    "recon_error": {
+      "type": "number"
+    },
+    "threshold": {
+      "type": "number"
+    },
+    "top_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engine": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "client",
+    "window_s",
+    "recon_error",
+    "threshold",
+    "top_features",
+    "engine"
+  ],
+  "additionalProperties": true
+}

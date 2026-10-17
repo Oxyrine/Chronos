@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^P-[0-9]{4}$"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "template_id": {
+      "type": "string",
+      "enum": [
+        "T1_nginx_hybrid_groups",
+        "T2_sshd_hybrid_kex",
+        "T3_client_tls_groups",
+        "T4_mtls_mldsa"
+      ]
+    },
+    "params": {
+      "type": "object"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "compatibility_risk": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "requires_human": {
+      "const": true
+    },
+    "model": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "finding_id",
+    "template_id",
+    "params",
+    "rationale",
+    "compatibility_risk",
+    "requires_human",
+    "model"
+  ],
+  "additionalProperties": true
+}

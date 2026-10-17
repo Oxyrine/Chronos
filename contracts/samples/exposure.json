@@ -1,0 +1,15 @@
+{
+  "channel": "internet->portal",
+  "store_table": "patients",
+  "scenario": "base_2033",
+  "x_years": 50,
+  "y_years": 0.25,
+  "z_years": 7,
+  "margin": 43.25,
+  "exposed": true,
+  "kex_class": "classical",
+  "classical_share": 0.3,
+  "records": 50000,
+  "priority": 94,
+  "driving_finding": "F-0001"
+}

@@ -1,0 +1,13 @@
+{
+  "assets": [
+    {
+      "id": "GT-001",
+      "path": "demo/portal/nginx.conf",
+      "line": 12,
+      "asset_type": "protocol",
+      "algorithm": "X25519",
+      "params": {},
+      "quantum_status": "vulnerable"
+    }
+  ]
+}

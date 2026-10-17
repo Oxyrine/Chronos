@@ -1,0 +1,78 @@
+{
+  "channels": [
+    {
+      "id": "internet->portal",
+      "src": "internet",
+      "dst": "portal",
+      "protocol": "tls",
+      "port": 8443,
+      "reach": "internet",
+      "tables": [
+        "patients",
+        "encounters",
+        "appointment_reminders"
+      ]
+    },
+    {
+      "id": "internet->reminders",
+      "src": "internet",
+      "dst": "reminders",
+      "protocol": "tls",
+      "port": 8444,
+      "reach": "internet",
+      "tables": [
+        "appointment_reminders"
+      ]
+    },
+    {
+      "id": "lab-api->partner-lab",
+      "src": "lab-api",
+      "dst": "partner-lab",
+      "protocol": "tls",
+      "port": 8443,
+      "reach": "partner",
+      "tables": [
+        "lab_results",
+        "genomics_results"
+      ]
+    },
+    {
+      "id": "clinician->ops-ssh",
+      "src": "clinician",
+      "dst": "ops-ssh",
+      "protocol": "ssh",
+      "port": 2222,
+      "reach": "internal",
+      "tables": [
+        "encounters"
+      ]
+    }
+  ],
+  "tables": {
+    "patients": {
+      "records": 50000,
+      "store": "records-db",
+      "mean_record_bytes": 492
+    },
+    "encounters": {
+      "records": 200000,
+      "store": "records-db",
+      "mean_record_bytes": 1500
+    },
+    "genomics_results": {
+      "records": 8000,
+      "store": "records-db",
+      "mean_record_bytes": 2000
+    },
+    "lab_results": {
+      "records": 400000,
+      "store": "records-db",
+      "mean_record_bytes": 200
+    },
+    "appointment_reminders": {
+      "records": 60000,
+      "store": "records-db",
+      "mean_record_bytes": 160
+    }
+  }
+}

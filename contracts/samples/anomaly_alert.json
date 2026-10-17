@@ -1,0 +1,13 @@
+{
+  "ts": "2026-10-18T01:00:00Z",
+  "client": "10.0.4.17",
+  "window_s": 60,
+  "recon_error": 0.183,
+  "threshold": 0.041,
+  "top_features": [
+    "export_share",
+    "bytes_out",
+    "long_policy_share"
+  ],
+  "engine": "zdlc-nnpa"
+}

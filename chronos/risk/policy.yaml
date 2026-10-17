@@ -1,0 +1,14 @@
+# Confidentiality policy (spec 7.3). The classifier predicts the category; THIS file decides the years.
+# Every number is a demo assumption, not a legal obligation.
+version: policy-1.0
+categories:
+  genetic:         {years: 75,    basis: "Assumption: lifetime of the person plus relevance to relatives"}
+  child_health:    {years: 75,    basis: "Assumption: whole lifetime of the child"}
+  clinical:        {years: 50,    basis: "Assumption"}
+  identity:        {years: 30,    basis: "Assumption"}
+  financial:       {years: 10,    basis: "Assumption"}
+  contact:         {years: 10,    basis: "Assumption: a phone number stays sensitive long after its OTP expires"}
+  pseudonymous_id: {years: 10,    basis: "Assumption: links rows back to people"}
+  scheduling:      {years: 1,     basis: "Assumption: expires quickly"}
+  auth_secret:     {years: 0.003, basis: "Assumption: 1 day"}
+  non_sensitive:   {years: 0,     basis: "Assumption"}
