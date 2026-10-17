@@ -5,6 +5,7 @@ Backend: Snap ML BoostingMachineClassifier when importable (IBM Z), else scikit-
 Artifacts are written and read on the same machine only; the loader refuses a model trained on a different byte order.
 """
 import json
+import os
 import pathlib
 import sys
 import time
@@ -23,9 +24,14 @@ THRESH_LLM = 0.50      # below this top probability, ask the LLM for a second op
 
 
 def make_classifier(seed: int = 7):
+    """Snap ML on IBM Z. CHRONOS_ROUNDS lowers its boosting rounds for quick test runs (default 200 for real training)."""
     try:
         from snapml import BoostingMachineClassifier
-        return "snapml", BoostingMachineClassifier(num_round=200, learning_rate=0.1, max_depth=6, random_state=seed)
+        kw = dict(num_round=int(os.environ.get("CHRONOS_ROUNDS", 200)), learning_rate=0.1, max_depth=6, random_state=seed)
+        try:  # use every core: training is one-off and nothing else may be running then (llama-server and sandbox runs are off)
+            return "snapml", BoostingMachineClassifier(n_jobs=int(os.environ.get("CHRONOS_JOBS", os.cpu_count() or 1)), **kw)
+        except TypeError:
+            return "snapml", BoostingMachineClassifier(**kw)
     except ImportError:
         from sklearn.ensemble import HistGradientBoostingClassifier
         return "sklearn-hgb", HistGradientBoostingClassifier(max_iter=250, learning_rate=0.1, max_leaf_nodes=15, random_state=seed)
