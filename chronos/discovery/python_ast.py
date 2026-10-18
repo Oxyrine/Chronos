@@ -34,6 +34,14 @@ def scan_source(src: str, path: str) -> list[dict]:
     rsa_bits = None
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
     calls.sort(key=lambda n: (n.lineno, n.col_offset))
+    imports = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            for item in node.names:
+                imports[item.asname or item.name] = node.module + "." + item.name
+        elif isinstance(node, ast.Import):
+            for item in node.names:
+                imports[item.asname or item.name.split(".")[0]] = item.name if item.asname else item.name.split(".")[0]
     out = []
 
     def add(node, **kw):
@@ -42,7 +50,15 @@ def scan_source(src: str, path: str) -> list[dict]:
     for c in calls:
         fn = dotted(c.func)
         last = fn.rsplit(".", 1)[-1]
-        if fn.endswith("rsa.generate_private_key") or (fn == "generate_private_key" and const_arg(c, "key_size", 1)):
+        head, _, tail = fn.partition(".")
+        canonical = imports.get(head, head) + ("." + tail if tail else "")
+        if canonical == "cryptography.hazmat.primitives.ciphers.aead.AESGCM.generate_key":
+            bits = const_arg(c, "bit_length", 0)
+            known = type(bits) is int and bits in (128, 192, 256)
+            add(c, asset_type="algorithm", algorithm=f"AES-{bits}-GCM" if known else "AES-GCM",
+                usage="symmetric", params={"key_bits": bits} if known else {},
+                status=None if known else "vulnerable")
+        elif fn.endswith("rsa.generate_private_key") or (fn == "generate_private_key" and const_arg(c, "key_size", 1)):
             rsa_bits = const_arg(c, "key_size", 1)
             add(c, asset_type="algorithm", algorithm="RSA", usage="encryption", params={"key_bits": rsa_bits})
         elif fn.endswith("ec.generate_private_key"):

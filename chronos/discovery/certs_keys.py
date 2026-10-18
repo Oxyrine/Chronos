@@ -109,14 +109,23 @@ def _jks(path_obj, path: str):
         return
     for pw in PASSWORDS:
         try:
-            ks = jks.KeyStore.load(str(path_obj), pw.decode())
+            # Verify the store password/integrity without decrypting private
+            # keys. pyjks 20 fails on valid Java keys with absent ASN.1 params;
+            # inventory needs the entry type and public certificate, not secrets.
+            ks = jks.KeyStore.load(str(path_obj), pw.decode(), try_decrypt_keys=False)
         except Exception:
             continue
         for entry in ks.entries.values():
             if isinstance(entry, jks.PrivateKeyEntry):
-                yield key_asset(serialization.load_der_private_key(entry.pkey_pkcs8, None), path)
-                for _, der in entry.cert_chain:
-                    yield cert_asset(x509.load_der_x509_certificate(der), path)
+                certs = [x509.load_der_x509_certificate(der) for _, der in entry.cert_chain]
+                alg, params = key_info(certs[0].public_key()) if certs else ("unknown", {})
+                yield asset(path=path, line=None, asset_type="related-crypto-material", algorithm=alg,
+                            usage="signature", source=SOURCE,
+                            params={**params, "material": "private-key", "encrypted": True,
+                                    "alias": entry.alias, "key_identity_source": "certificate-chain" if certs else "unknown"},
+                            fingerprint=f"jks-key:{entry.alias}")
+                for cert in certs:
+                    yield cert_asset(cert, path)
             elif isinstance(entry, jks.TrustedCertEntry):
                 yield cert_asset(x509.load_der_x509_certificate(entry.cert), path)
         return

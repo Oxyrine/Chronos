@@ -29,12 +29,13 @@ def discovery(repo=pathlib.Path(".")) -> dict:
     import os
     probe = scan.live_probe.http_runner if os.environ.get('CHRONOS_PROBE_URL') else None
     res = scan.run(roots, yaml.safe_load(topo_path.read_text()), base=repo, probe=probe)
+    current_score = evaluate.score(res['findings'], gt)
     baseline = repo / 'out/runs/before/findings.json'
     if baseline.exists():
         res['findings'] = json.loads(baseline.read_text())
     res_score = evaluate.score(res["findings"], gt)
     base = evaluate.score_loose(evaluate.grep_baseline(roots, repo), gt)
-    return {**res_score, "evaluated_findings": 'measured baseline snapshot' if baseline.exists() else 'current scan', "scan_seconds": res["stats"]["scan_seconds"], "grep_baseline": base,
+    return {**res_score, "current_scan": current_score, "evaluated_findings": 'measured baseline snapshot' if baseline.exists() else 'current scan', "scan_seconds": res["stats"]["scan_seconds"], "grep_baseline": base,
             "targets": {"recall": 0.90, "precision": 0.85, "scan_seconds": 60},
             "targets_met": res_score["recall"] >= 0.90 and res_score["precision"] >= 0.85 and res["stats"]["scan_seconds"] < 60}
 

@@ -1,6 +1,6 @@
 {
   "synthetic": true,
-  "measured_at": "2026-10-18T02:48:29Z",
+  "measured_at": "2026-10-18T03:16:15Z",
   "discovery": {
     "recall": 0.933,
     "precision": 1.0,
@@ -12,8 +12,16 @@
       "A-040"
     ],
     "extra": [],
+    "current_scan": {
+      "recall": 1.0,
+      "precision": 1.0,
+      "ground_truth": 45,
+      "findings": 45,
+      "missed": [],
+      "extra": []
+    },
     "evaluated_findings": "measured baseline snapshot",
-    "scan_seconds": 1.216,
+    "scan_seconds": 1.187,
     "grep_baseline": {
       "recall": 0.267,
       "precision": 0.556,
@@ -589,7 +597,7 @@
     ]
   },
   "performance": {
-    "discovery_scan_seconds": 1.216,
+    "discovery_scan_seconds": 1.187,
     "classify_ms_per_column": 0.094,
     "runtime": {
       "arch": "s390x",

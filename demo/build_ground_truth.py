@@ -40,7 +40,7 @@ def build():
     python = "demo/lab-api/crypto_utils.py"
     for alg,anchor,status in (("RSA","wrapping_key =","vulnerable"),("RSA-OAEP","wrapped =","vulnerable"),("ECDSA","signer =","vulnerable"),("SHA-1",'"etag": hashlib.sha1',"weakened")):
         add(python,alg,status=status,anchor=anchor)
-    # AES-256-GCM is also present even though the current AST scanner doesn't detect it.
+    # Include resistant primitives as well as migration candidates.
     add(python,"AES-256-GCM",status="resistant",anchor="aes_key =",key_bits=256)
     java = "demo/billing/Billing.java"
     for alg,anchor,status in (("RSA","KeyPairGenerator keys =","vulnerable"),("SHA256withRSA","Signature signer =","vulnerable"),("AES-ECB","Cipher legacy =","resistant"),("SHA-1","MessageDigest etag =","weakened")):
@@ -53,7 +53,7 @@ def build():
     add("demo/infra/java.security","x25519,secp256r1","protocol",anchor="jdk.tls.namedGroups=")
     for svc,port,alg in (("portal",8443,"X25519"),("reminders",8444,"X25519"),("ops-ssh",2222,"curve25519-sha256")):
         add(f"live://{svc}:{port}",alg,"protocol")
-    return {"assets":assets,"notes":["Baseline inventory: regenerate after a reset, not after a patch; retain before findings separately.","AES-256-GCM intentionally remains in ground truth although the present AST scanner misses it.","Live partner-lab probe is excluded because the measured channel is the pinned lab-api client."]}
+    return {"assets":assets,"notes":["Baseline inventory: regenerate after a reset, not after a patch; retain before findings separately.","AES-256-GCM is inventoried at its key-generation call.","Live partner-lab probe is excluded because the measured channel is the pinned lab-api client."]}
 
 if __name__ == "__main__":
     out=ROOT/"demo/ground_truth.yaml"

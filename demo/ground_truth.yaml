@@ -430,7 +430,7 @@
   ],
   "notes": [
     "Baseline inventory: regenerate after a reset, not after a patch; retain before findings separately.",
-    "AES-256-GCM intentionally remains in ground truth although the present AST scanner misses it.",
+    "AES-256-GCM is inventoried at its key-generation call.",
     "Live partner-lab probe is excluded because the measured channel is the pinned lab-api client."
   ]
 }
