@@ -12,6 +12,17 @@ import {
   Lock
 } from 'lucide-react';
 
+// Mirrors the server's rule gate (chronos/agent/propose.py): only vulnerable key-exchange
+// settings in these files have a template. Everything else stays flagged for a manual change.
+function templateFor(f: RankedFinding): string | null {
+  const path = f.location?.path ?? '';
+  if (f.usage !== 'key_exchange' || f.quantum_status !== 'vulnerable') return null;
+  if (path.endsWith('nginx.conf')) return 'T1_nginx_hybrid_groups';
+  if (path.endsWith('sshd_config')) return 'T2_sshd_hybrid_kex';
+  if (path === 'demo/lab-api/openssl.cnf') return 'T3_client_tls_groups';
+  return null;
+}
+
 interface RemediationProps {
   user: UserSession | null;
 }
@@ -70,7 +81,7 @@ export const Remediation: React.FC<RemediationProps> = ({ user }) => {
     try {
       setProposing(true);
       setError(null);
-      setStatusMessage('Querying Granite 3.2 8B model to generate verified post-quantum config patch...');
+      setStatusMessage('Asking Granite to pick a template and fill its parameters...');
       const record = await api.createProposal(selectedFinding.finding_id, proposalMode);
       setProposal(record);
       setVerification(null);
@@ -232,10 +243,10 @@ export const Remediation: React.FC<RemediationProps> = ({ user }) => {
             <div>
               <div className="card-title">
                 <Wrench style={{ width: 18, height: 18, color: 'var(--accent-cyan)' }} />
-                <span>Granite PQC Remediation Seam</span>
+                <span>Remediation: propose, verify, approve, sign</span>
               </div>
               <div className="card-subtitle">
-                Step-by-step verified configuration synthesis, container sandbox verification & ML-DSA attestation.
+                Granite only picks a template; deterministic code renders the diff, a sandbox verifies it, a human approves, ML-DSA signs.
               </div>
             </div>
             {selectedFinding && (
@@ -272,7 +283,7 @@ export const Remediation: React.FC<RemediationProps> = ({ user }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                   <div style={{ fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <span className="badge-tag accent">Step 1</span>
-                    <span>Propose Patch (Granite 3.2 8B)</span>
+                    <span>Propose patch (Granite 3.3 2B, template only)</span>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -283,14 +294,19 @@ export const Remediation: React.FC<RemediationProps> = ({ user }) => {
                       onChange={(e) => setProposalMode(e.target.value as any)}
                       style={{ padding: '0.2rem 0.5rem', width: 'auto', fontSize: '0.8rem' }}
                     >
-                      <option value="compatibility">Hybrid (X25519MLKEM768 + fallback)</option>
-                      <option value="strict">Strict (ML-KEM-768 only)</option>
+                      <option value="compatibility">Compatibility (hybrid + classical fallback)</option>
+                      <option value="strict">Strict (TLS 1.3 hybrid only; legacy clients rejected)</option>
                     </select>
                   </div>
                 </div>
 
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-                  Synthesizes template <code>T1_nginx_hybrid_groups</code> to inject hybrid post-quantum key exchange while maintaining classical client interoperability.
+                  {templateFor(selectedFinding) ? (
+                    <>Template <code>{templateFor(selectedFinding)}</code>: Granite fills its parameters; deterministic code renders the diff.
+                      {proposalMode === 'strict' ? ' Strict mode removes classical sessions but rejects legacy clients.' : ' Compatibility mode keeps a classical fallback, so legacy clients still connect.'}</>
+                  ) : (
+                    <>No remediation template covers <code>{selectedFinding.location?.path}</code>; it stays flagged for a manual change and the server will refuse a proposal.</>
+                  )}
                 </p>
 
                 <button
@@ -300,7 +316,7 @@ export const Remediation: React.FC<RemediationProps> = ({ user }) => {
                   style={{ width: '100%' }}
                 >
                   <Cpu style={{ width: 14, height: 14 }} />
-                  {proposing ? 'Synthesizing with Granite 3.2...' : 'Generate Verified Patch Proposal'}
+                  {proposing ? 'Asking Granite…' : 'Generate patch proposal'}
                 </button>
               </div>
 

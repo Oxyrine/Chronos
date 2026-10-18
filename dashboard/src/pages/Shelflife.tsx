@@ -65,7 +65,7 @@ export const Shelflife: React.FC<ShelflifeProps> = ({ user }) => {
   const handleRunShelflife = async () => {
     try {
       setRunning(true);
-      setRunMessage('Extracting statistical column features and executing in-DB random forest classifier...');
+      setRunMessage('Profiling columns inside the database and classifying them with the Snap ML model...');
       const res = await api.runShelflife();
       setRunMessage(`Classification complete for ${res.columns || predictions.length} columns.`);
       await loadPredictions();
@@ -110,9 +110,8 @@ export const Shelflife: React.FC<ShelflifeProps> = ({ user }) => {
       <div className="banner info" style={{ padding: '1rem', borderLeft: '4px solid var(--accent-cyan)' }}>
         <Lock style={{ width: 22, height: 22, flexShrink: 0, color: 'var(--accent-cyan)' }} />
         <div>
-          <strong style={{ fontSize: '0.95rem' }}>Zero Data Egress Guarantee:</strong>{' '}
-          No raw database cell values or records ever leave the database boundary. Classification executes entirely
-          in-DB via statistical heuristics (cardinality, distinctness, entropy) and metadata random forest, keeping patient and enterprise data confidential.
+          <strong style={{ fontSize: '0.95rem' }}>Data minimisation:</strong>{' '}
+          No raw cell value leaves the database. Profiling runs inside the database container and returns only aggregates (pattern hit rates, value length, uniqueness, null ratio); the Snap ML gradient-boosting model sees those plus column and table names.
         </div>
       </div>
 
@@ -227,7 +226,7 @@ export const Shelflife: React.FC<ShelflifeProps> = ({ user }) => {
                           {pred.top_features && pred.top_features.length > 0 ? (
                             <span>{pred.top_features.slice(0, 3).join(', ')}</span>
                           ) : (
-                            <span>heuristic & metadata match</span>
+                            <span>no strong value pattern</span>
                           )}
                         </div>
                       </td>

@@ -77,15 +77,21 @@ export function App() {
         <Navbar user={user} health={health} onLogout={handleLogout} />
 
         <main className="main-content">
+          {/* No session, no pages: every route goes to /login, and any 401 (chronos:unauthorized) sends you back there. */}
           <Routes>
-            <Route path="/login" element={<Login onLoginSuccess={(u) => setUser(u)} />} />
-            <Route path="/overview" element={<Overview />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/shelflife" element={<Shelflife user={user} />} />
-            <Route path="/remediation" element={<Remediation user={user} />} />
-            <Route path="/ledger" element={<Ledger />} />
-            <Route path="/" element={<Navigate to="/overview" replace />} />
-            <Route path="*" element={<Navigate to="/overview" replace />} />
+            <Route path="/login" element={user ? <Navigate to="/overview" replace /> : <Login onLoginSuccess={(u) => setUser(u)} />} />
+            {user ? (
+              <>
+                <Route path="/overview" element={<Overview />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/shelflife" element={<Shelflife user={user} />} />
+                <Route path="/remediation" element={<Remediation user={user} />} />
+                <Route path="/ledger" element={<Ledger />} />
+                <Route path="*" element={<Navigate to="/overview" replace />} />
+              </>
+            ) : (
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            )}
           </Routes>
         </main>
 

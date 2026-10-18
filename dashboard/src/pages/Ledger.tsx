@@ -90,7 +90,7 @@ export const Ledger: React.FC = () => {
               <span>Immutable Attestation Ledger (ML-DSA-65)</span>
             </div>
             <div className="card-subtitle">
-              Cryptographically signed attestation log of all approved configuration remediations with SHA-256 Merkle links.
+              One ML-DSA-65 signed entry per approved change; each entry carries the SHA-256 hash of the previous one.
             </div>
           </div>
 
@@ -113,8 +113,19 @@ export const Ledger: React.FC = () => {
           </div>
         </div>
 
-        {/* Chain Integrity Banner */}
-        {verification && (
+        {/* Chain integrity: true = intact, false = broken, null = not verifiable (sample mode) */}
+        {verification && verification.chain_ok === null && (
+          <div className="banner info" style={{ marginBottom: '1rem' }}>
+            <AlertTriangle style={{ width: 18, height: 18, flexShrink: 0 }} />
+            <div>
+              <strong>Not verified: sample data</strong>
+              <div style={{ fontSize: '0.75rem', marginTop: '0.2rem', color: 'var(--text-secondary)' }}>
+                {verification.detail || 'Sample signatures are illustrative; connect to the LinuxONE stack to verify the real ledger.'}
+              </div>
+            </div>
+          </div>
+        )}
+        {verification && verification.chain_ok !== null && (
           <div
             className={`banner ${verification.chain_ok ? 'info' : 'error'}`}
             style={{
@@ -132,13 +143,13 @@ export const Ledger: React.FC = () => {
             <div>
               <strong>
                 {verification.chain_ok
-                  ? 'Ledger Chain Intact & Verified'
-                  : `Tampering Detected at Sequence #${verification.bad_seq}`}
+                  ? 'Chain intact: every hash and signature verified'
+                  : `Chain broken at entry #${verification.bad_seq ?? '?'}`}
               </strong>
               <div style={{ fontSize: '0.75rem', marginTop: '0.2rem', color: 'var(--text-secondary)' }}>
                 {verification.chain_ok
-                  ? `Every entry is chained via SHA-256 and verified against the ML-DSA-65 signing key (${verification.mode || 'live'}).`
-                  : 'Hash mismatch or invalid signature detected. Investigation required.'}
+                  ? 'Each entry is linked by SHA-256 to the previous one and its ML-DSA-65 signature checks against the published key.'
+                  : 'A hash or signature does not match. The ledger was edited or an entry is corrupt.'}
               </div>
             </div>
           </div>
@@ -276,7 +287,8 @@ export const Ledger: React.FC = () => {
 
       {/* Compliance Disclaimer */}
       <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
-        Attestations are cryptographically signed with NIST FIPS 204 ML-DSA-65 and chained using SHA-256. Verified on IBM Z LinuxONE (s390x).
+        A signature proves who attested to which evidence, not that the patch is secure in every respect.
+        <br />Signed with ML-DSA-65 (FIPS 204); entries chained with SHA-256.
       </div>
     </div>
   );

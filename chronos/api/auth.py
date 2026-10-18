@@ -12,6 +12,7 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 
 from chronos.api.deps import current_user
+from chronos.common import samples
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -85,12 +86,31 @@ def _get_client_ip(request: Request) -> str:
     return "127.0.0.1"
 
 
+# Signs dev-only sessions in sample mode; never used once a real secret is configured.
+_EPHEMERAL_DEV_SECRET = secrets.token_hex(32)
+
+
 def get_jwt_secret() -> str:
+    """CHRONOS_JWT_SECRET, or fail closed. Only sample-mode dev logins may use a per-process random secret."""
     secret = os.environ.get("CHRONOS_JWT_SECRET", "").strip()
-    if not secret:
-        # Fallback to API token or ephemeral secret for standalone dev/test
-        secret = os.environ.get("CHRONOS_API_TOKEN", "chronos-insecure-dev-secret-32-bytes-long!")
-    return secret
+    if secret:
+        return secret
+    if samples.use_samples() and _dev_passwords_allowed():
+        return _EPHEMERAL_DEV_SECRET
+    raise HTTPException(503, "CHRONOS_JWT_SECRET is not configured; run scripts/run_all.sh")
+
+
+def _dev_passwords_allowed() -> bool:
+    """viewer/viewer and secops/secops exist only for sample-mode UI work, never against real data."""
+    return os.environ.get("CHRONOS_ALLOW_DEV_PASSWORDS") == "1" and samples.use_samples()
+
+
+def _set_session(response: Response, token: str) -> None:
+    # Always Secure: browsers still accept it on http://localhost, and nginx is HTTPS-only.
+    # CHRONOS_COOKIE_SECURE=0 exists only for clients that refuse Secure cookies on plain HTTP.
+    response.set_cookie(key=COOKIE_NAME, value=token, httponly=True,
+                        secure=os.environ.get("CHRONOS_COOKIE_SECURE", "1") != "0",
+                        samesite="strict", path="/", max_age=TOKEN_EXPIRY_SECONDS)
 
 
 def create_token(username: str, role: str) -> str:
@@ -124,24 +144,14 @@ def login(body: LoginRequest, request: Request, response: Response):
     users = _get_configured_users()
     user_entry = users.get(body.username)
     
-    # If users are not configured yet in .env, check for development/sample fallback
-    if not user_entry:
+    # Sample-mode UI development only (see _dev_passwords_allowed).
+    if not user_entry and _dev_passwords_allowed():
         dev_passwords = {"viewer": "viewer", "secops": "secops"}
-        if body.username in dev_passwords and os.environ.get("CHRONOS_ALLOW_DEV_PASSWORDS", "0") == "1":
-            if hmac.compare_digest(body.password, dev_passwords[body.username]):
-                role = "security_engineer" if body.username == "secops" else "viewer"
-                token = create_token(body.username, role)
-                response.set_cookie(
-                    key=COOKIE_NAME,
-                    value=token,
-                    httponly=True,
-                    secure=True,
-                    samesite="strict",
-                    path="/",
-                    max_age=TOKEN_EXPIRY_SECONDS,
-                )
-                _FAILED_LOGINS.pop(rate_key, None)
-                return {"sub": body.username, "role": role}
+        if body.username in dev_passwords and hmac.compare_digest(body.password, dev_passwords[body.username]):
+            role = "security_engineer" if body.username == "secops" else "viewer"
+            _set_session(response, create_token(body.username, role))
+            _FAILED_LOGINS.pop(rate_key, None)
+            return {"sub": body.username, "role": role}
 
     authenticated = False
     role = "viewer"
@@ -159,19 +169,7 @@ def login(body: LoginRequest, request: Request, response: Response):
         raise HTTPException(401, "invalid credentials")
 
     _FAILED_LOGINS.pop(rate_key, None)
-    token = create_token(body.username, role)
-    # Secure cookie if on HTTPS, behind HTTPS proxy, or explicitly configured in production
-    is_secure = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https" or os.environ.get("CHRONOS_COOKIE_SECURE") == "1"
-
-    response.set_cookie(
-        key=COOKIE_NAME,
-        value=token,
-        httponly=True,
-        secure=is_secure,
-        samesite="strict",
-        path="/",
-        max_age=TOKEN_EXPIRY_SECONDS,
-    )
+    _set_session(response, create_token(body.username, role))
     return {"sub": body.username, "role": role}
 
 

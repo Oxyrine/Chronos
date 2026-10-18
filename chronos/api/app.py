@@ -14,7 +14,6 @@ from chronos.api import auth
 from chronos.api.auth import COOKIE_NAME, decode_token
 from chronos.api.deps import current_user
 from chronos.api.routers import agent, meta, risk, scan, shelflife, verify
-from chronos.common import samples
 
 app = FastAPI(title="Chronos", version="0.1.0")
 bearer = HTTPBearer(auto_error=False)
@@ -46,10 +45,6 @@ def resolve_current_user(
             return {"sub": payload.get("sub", "anonymous"), "role": payload.get("role", "viewer")}
         except HTTPException:
             pass
-
-    # 3. Sample mode local fallback
-    if samples.use_samples():
-        return {"sub": "secops", "role": "security_engineer"}
 
     raise HTTPException(401, "authentication required", headers={"WWW-Authenticate": "Bearer"})
 

@@ -1,447 +1,292 @@
 import React, { useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
-import type { ExposureResponse } from '../types/contracts';
-import {
-  ShieldAlert,
-  CheckCircle2,
-  AlertTriangle,
-  Sliders,
-  Calendar,
-  ArrowRight,
-  Database
-} from 'lucide-react';
+import type { ExposureResponse, SystemHealth } from '../types/contracts';
+import { ShieldAlert, AlertTriangle, Sliders, Calendar, ArrowRight, Database } from 'lucide-react';
+
+type ExposureRow = ExposureResponse['exposures'][number];
+
+// Every number on this page comes from GET /api/metrics, GET /api/exposure or GET /health.
+// When a value is missing it is shown as "not measured", never replaced by a constant.
+const NOT_MEASURED = 'not measured';
+
+const pct = (v: unknown, digits = 1) => (typeof v === 'number' ? `${(v * 100).toFixed(digits)}%` : NOT_MEASURED);
+const num = (v: unknown) => (typeof v === 'number' ? Math.round(v).toLocaleString() : NOT_MEASURED);
+const signed = (v: number) => (v > 0 ? `+${v}` : `${v}`);
+
+const DEADLINES = [
+  { date: '2026-12-31', label: 'EU roadmap: national PQC strategies and first steps', source: 'EU Coordinated Roadmap (June 2025)' },
+  { date: '2030-12-31', label: 'EU roadmap: high-risk use cases (incl. health) migrated', source: 'EU Coordinated Roadmap (June 2025)' },
+];
+
+const daysUntil = (iso: string) => Math.ceil((new Date(`${iso}T23:59:59Z`).getTime() - Date.now()) / 86_400_000);
+
+function verdict(row: ExposureRow) {
+  if (row.exposed) return <span className="badge-tag red">EXPOSED (M &gt; 0, classical sessions)</span>;
+  if (row.margin > 0) return <span className="badge-tag yellow">M &gt; 0, no classical sessions measured</span>;
+  return <span className="badge-tag green">Not urgent (M &le; 0)</span>;
+}
+
+const TwinCard: React.FC<{ title: string; row?: ExposureRow; accent: string }> = ({ title, row, accent }) => (
+  <div className="card" style={{ borderLeft: `3px solid ${accent}` }}>
+    <div className="card-header">
+      <div className="card-title" style={{ color: accent }}>
+        <ShieldAlert style={{ width: 18, height: 18 }} />
+        <span>{title}</span>
+      </div>
+      {row && <span className={`badge-tag ${row.exposed ? 'red' : 'green'}`}>M = {signed(row.margin)} years</span>}
+    </div>
+    {row ? (
+      <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 6, fontSize: '0.85rem', lineHeight: 1.6 }}>
+        <div>Table <code>{row.store_table}</code> over <code>{row.channel}</code></div>
+        <div>Driving column: <code>{String(row.driving_column ?? 'unknown')}</code> → shelf-life X = <strong>{row.x_years} years</strong></div>
+        <div>M = X + Y − Z = {row.x_years} + {row.y_years} − {row.z_years} = <strong>{signed(row.margin)} years</strong></div>
+        <div>Priority: <strong>{row.priority}</strong> / 100 · classical share {(row.classical_share * 100).toFixed(0)}%</div>
+      </div>
+    ) : (
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No exposure row for this table yet. Run a scan and a classification.</p>
+    )}
+  </div>
+);
 
 export const Overview: React.FC = () => {
   const [scenario, setScenario] = useState<string>('base_2033');
-  const [customYear, setCustomYear] = useState<number>(2033);
+  const [crqcYear, setCrqcYear] = useState<number>(2033);
   const [exposureData, setExposureData] = useState<ExposureResponse | null>(null);
-  const [metricsData, setMetricsData] = useState<any>(null);
+  const [needsRun, setNeedsRun] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<any>(null);
+  const [health, setHealth] = useState<SystemHealth | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = async (activeScenario: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Parallel fetch metrics and exposure
-      const [exp, met] = await Promise.all([
-        api.getExposure(activeScenario).catch((err) => {
-          if (err instanceof ApiError && err.status === 409) {
-            return null; // Scan/classification not run yet
-          }
-          throw err;
-        }),
-        api.getMetrics().catch(() => null),
-      ]);
-
-      setExposureData(exp);
-      setMetricsData(met);
-    } catch (err: any) {
-      setError(err?.detail || 'Failed to load exposure and metrics data.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    api.getMetrics().then(setMetrics).catch(() => setMetrics(null));
+    api.getHealth().then(setHealth).catch(() => setHealth(null));
+  }, []);
 
   useEffect(() => {
-    loadData(scenario);
+    setLoading(true);
+    setError(null);
+    api.getExposure(scenario)
+      .then((exp) => { setExposureData(exp); setNeedsRun(null); })
+      .catch((err) => {
+        setExposureData(null);
+        if (err instanceof ApiError && err.status === 409) setNeedsRun(err.detail);
+        else setError(err?.detail || 'Failed to load exposure data.');
+      })
+      .finally(() => setLoading(false));
   }, [scenario]);
 
-  const handleScenarioChange = (newScenario: string) => {
-    setScenario(newScenario);
-    if (newScenario === 'early_2030') setCustomYear(2030);
-    else if (newScenario === 'base_2033') setCustomYear(2033);
-    else if (newScenario === 'late_2035') setCustomYear(2035);
-  };
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const choose = (name: string, year: number) => { setScenario(name); setCrqcYear(year); };
+  const onSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const yr = parseInt(e.target.value, 10);
-    setCustomYear(yr);
-    setScenario(`custom_${yr}`);
+    choose(`custom_${yr}`, yr);
   };
 
-  const currentYear = new Date().getFullYear();
-  const zYears = customYear - currentYear;
-
-  // Extract metrics or fallbacks from metricsData
-  const metrics = metricsData?.metrics || metricsData;
-  const exposureBaseline = metrics?.exposure?.baseline_E ?? (exposureData?.E ?? 668000);
-  const exposurePostFix = metrics?.exposure?.post_fix_E ?? 78000;
-  const recallBaseline = metrics?.discovery?.recall_baseline ?? 0.933;
-  const recallTuned = metrics?.discovery?.recall_tuned ?? 1.0;
-  const classifierF1 = metrics?.shelflife?.macro_f1 ?? 0.821;
+  const exposureM = metrics?.exposure ?? {};
+  const discovery = metrics?.discovery ?? {};
+  const heldOut = metrics?.shelflife?.fixed_split?.test ?? {};
+  const mix = exposureM.client_mix;
+  const openRoutes: unknown[] = Array.isArray(exposureM.classical_routes_still_open) ? exposureM.classical_routes_still_open : [];
+  const rows = exposureData?.exposures ?? [];
+  const exposedCount = rows.filter((r) => r.exposed).length;
+  const portal = rows.find((r) => r.channel === 'internet->portal' && r.store_table === 'patients');
+  const reminders = rows.find((r) => r.channel === 'internet->reminders' && r.store_table === 'appointment_reminders');
+  const zYears = rows[0]?.z_years;
 
   return (
     <div className="overview-page">
-      {/* Narrative Spine & Theme 2 Bridge Banner */}
-      <div className="card" style={{ borderLeft: '4px solid var(--accent-cyan)', background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.08) 0%, rgba(17, 24, 39, 0.9) 100%)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
-              <span className="badge-tag accent">Theme 2: AI Secured</span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Discover → Prioritize → Fix → Sign
-              </span>
-            </div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              &ldquo;Chronos understands sensitive data without exporting it, then protects how it travels from here on.&rdquo;
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-              Proactive Post-Quantum Cryptographic Agility for IBM Z LinuxONE enterprise microservices.
-            </p>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <span className="provenance-tag">Traceable to: GET /api/metrics & GET /api/exposure</span>
-          </div>
+      <div className="card" style={{ borderLeft: '4px solid var(--accent-cyan)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
+          <span className="badge-tag accent">Theme 2: AI Secured</span>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Discover → Prioritize → Fix → Sign</span>
         </div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          &ldquo;Chronos understands sensitive data without exporting it, then protects how it travels from here on.&rdquo;
+        </h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+          St. Aster General is a fictional hospital. All data on this page is synthetic.
+        </p>
       </div>
 
       {error && (
-        <div className="banner error">
-          <AlertTriangle style={{ width: 16, height: 16 }} />
-          <span>{error}</span>
-        </div>
+        <div className="banner error"><AlertTriangle style={{ width: 16, height: 16 }} /><span>{error}</span></div>
       )}
 
-      {/* 4 Headline Metrics Grid */}
       <div className="grid-4" style={{ marginBottom: '1.5rem' }}>
         <div className="metric-box">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div className="metric-label">Total Exposure Index (E)</div>
-            <span className="provenance-tag">GET /api/exposure</span>
+            <div className="metric-label">Future-transfer exposure (E)</div>
+            <span className="provenance-tag">GET /api/metrics</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-            <span className="metric-value" style={{ color: 'var(--accent-red)' }}>
-              {exposureData ? Math.round(exposureData.E).toLocaleString() : exposureBaseline.toLocaleString()}
-            </span>
+            <span className="metric-value" style={{ color: 'var(--accent-red)' }}>{num(exposureM.E_before)}</span>
             <ArrowRight style={{ width: 16, height: 16, color: 'var(--text-muted)' }} />
-            <span className="metric-value" style={{ color: 'var(--accent-green)' }}>
-              {exposurePostFix.toLocaleString()}
-            </span>
+            <span className="metric-value" style={{ color: 'var(--accent-green)' }}>{num(exposureM.E_after)}</span>
           </div>
           <div className="metric-diff positive">
-            ↓ 88.3% risk reduction post-remediation
+            {typeof exposureM.drop === 'number' ? `↓ ${pct(exposureM.drop)} after the verified fixes` : NOT_MEASURED}
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-            * Qualifier: Disclosed 70/30 client mix; 4 classical routes open; synthetic data.
+            An index, not a count of captured records.
+            {mix ? ` Client mix ${mix.hybrid_capable}/${mix.legacy} (hybrid-capable/legacy).` : ''}
+            {` ${openRoutes.length} classical route(s) still open.`}
+            {exposureData ? ` Live now (${scenario}): E = ${num(exposureData.E)}.` : ''}
           </div>
         </div>
 
         <div className="metric-box">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div className="metric-label">CBOM Discovery Recall</div>
+            <div className="metric-label">Discovery recall</div>
             <span className="provenance-tag">GET /api/metrics</span>
           </div>
           <div className="metric-value" style={{ color: 'var(--accent-cyan)' }}>
-            {(recallBaseline * 100).toFixed(1)}% <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>→ {(recallTuned * 100).toFixed(1)}%</span>
+            {pct(discovery.recall)}
+            {typeof discovery.current_scan?.recall === 'number' && (
+              <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}> → {pct(discovery.current_scan.recall)}</span>
+            )}
           </div>
           <div className="metric-diff positive">
-            Targeting 10 seeded crypto assets
+            {typeof discovery.ground_truth === 'number' ? `${discovery.ground_truth} planted assets; precision ${pct(discovery.precision)}` : NOT_MEASURED}
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-            * Qualifier: 0.933 baseline measurement; 1.0 achieved after closing regex/parser gaps.
+            First value is the measurement; the second is after closing the known gaps (tuned, not independent).
           </div>
         </div>
 
         <div className="metric-box">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div className="metric-label">Classifier Macro F1</div>
+            <div className="metric-label">Classifier macro-F1 (held-out)</div>
             <span className="provenance-tag">GET /api/metrics</span>
           </div>
-          <div className="metric-value" style={{ color: 'var(--accent-yellow)' }}>
-            {(classifierF1 * 100).toFixed(1)}%
-          </div>
-          <div className="metric-diff">
-            In-DB column retention profiling
-          </div>
+          <div className="metric-value" style={{ color: 'var(--accent-yellow)' }}>{pct(heldOut.macro_f1)}</div>
+          <div className="metric-diff">Under-protection {pct(heldOut.under_protection_rate)}</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-            * Qualifier: School F1 optimistic; trained & evaluated on synthetic healthcare/school data.
+            Synthetic School domain; agreement with our labels, not legal accuracy. Backend: {metrics?.shelflife?.backend ?? NOT_MEASURED}.
           </div>
         </div>
 
         <div className="metric-box">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div className="metric-label">Target Architecture</div>
+            <div className="metric-label">Platform</div>
             <span className="provenance-tag">GET /health</span>
           </div>
-          <div className="metric-value" style={{ fontSize: '1.5rem', color: 'var(--accent-purple)' }}>
-            LinuxONE (s390x)
-          </div>
+          <div className="metric-value" style={{ fontSize: '1.5rem', color: 'var(--accent-purple)' }}>{health?.arch ?? NOT_MEASURED}</div>
           <div className="metric-diff" style={{ color: 'var(--text-secondary)' }}>
-            CPU-only inference (No NNPA)
+            NNPA accelerator: {health ? (health.nnpa ? 'detected' : 'not present') : NOT_MEASURED}
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-            * Qualifier: IBM Z mainframe VM environment; no on-chip NNPA hardware accelerator used.
+            {health?.arch === 's390x' ? 'Running on IBM LinuxONE.' : 'Not the LinuxONE VM: numbers above were measured there.'}
           </div>
         </div>
       </div>
 
-      {/* Mosca CRQC Timeline & Interactive Slider */}
       <div className="card">
         <div className="card-header">
           <div>
             <div className="card-title">
               <Sliders style={{ width: 18, height: 18, color: 'var(--accent-cyan)' }} />
-              <span>Cryptanalytically Relevant Quantum Computer (CRQC) Timeline</span>
+              <span>When could a quantum computer break today's key exchange?</span>
             </div>
-            <div className="card-subtitle">
-              Adjust estimated time of quantum threat (Z) to calculate Mosca safety margins across all channels.
-            </div>
+            <div className="card-subtitle">Planning scenarios, not predictions. Moving the year recomputes every margin.</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={() => handleScenarioChange('early_2030')}
-              className={`btn ${scenario === 'early_2030' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
-            >
-              Early (2030)
-            </button>
-            <button
-              onClick={() => handleScenarioChange('base_2033')}
-              className={`btn ${scenario === 'base_2033' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
-            >
-              Base (2033)
-            </button>
-            <button
-              onClick={() => handleScenarioChange('late_2035')}
-              className={`btn ${scenario === 'late_2035' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
-            >
-              Late (2035)
-            </button>
+            {([['early_2030', 2030, 'Early (2030)'], ['base_2033', 2033, 'Base (2033)'], ['late_2035', 2035, 'Late (2035)']] as const).map(([name, yr, label]) => (
+              <button key={name} onClick={() => choose(name, yr)}
+                className={`btn ${scenario === name ? 'btn-primary' : 'btn-secondary'}`} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-
         <div style={{ padding: '0.5rem 0 1rem 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
-            <span>Target CRQC Horizon: <strong style={{ color: 'var(--accent-cyan)' }}>Year {customYear}</strong> (in {zYears} years)</span>
-            <span style={{ color: 'var(--text-muted)' }}>Range: 2028 – 2040</span>
+            <label htmlFor="crqc-year">Custom year: <strong style={{ color: 'var(--accent-cyan)' }}>{crqcYear}</strong></label>
+            <span style={{ color: 'var(--text-muted)' }}>2028 – 2040</span>
           </div>
-          <input
-            type="range"
-            min="2028"
-            max="2040"
-            value={customYear}
-            onChange={handleSliderChange}
-            style={{ width: '100%', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
-          />
+          <input id="crqc-year" type="range" min="2028" max="2040" value={crqcYear} onChange={onSlider}
+            style={{ width: '100%', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }} />
         </div>
-
-        {/* Mosca Theorem Formula Callout */}
-        <div style={{
-          backgroundColor: 'var(--bg-subtle)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 6,
-          border: '1px solid var(--border-color)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          fontSize: '0.85rem'
-        }}>
-          <div>
-            <strong>Mosca&rsquo;s Inequality:</strong>{' '}
-            <code style={{ fontSize: '0.95rem', color: 'var(--accent-cyan)' }}>M = X + Y - Z</code>{' '}
-            where <span style={{ color: '#cbd5e1' }}>X = Data Shelf-life</span>,{' '}
-            <span style={{ color: '#cbd5e1' }}>Y = Migration Time (1y)</span>,{' '}
-            <span style={{ color: '#cbd5e1' }}>Z = Years to CRQC ({zYears}y)</span>.
-          </div>
-          <div>
-            Status: {customYear <= 2033 ? (
-              <span className="badge-tag red">Condition M &gt; 0: CRITICAL EXPOSURE</span>
-            ) : (
-              <span className="badge-tag yellow">Partial Exposure</span>
-            )}
-          </div>
+        <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '0.85rem 1.25rem', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
+          <strong>Mosca&rsquo;s rule:</strong> <code style={{ color: 'var(--accent-cyan)' }}>M = X + Y − Z</code>, where X = years the data must stay secret,
+          Y = years to migrate (by fix type), Z = years until a quantum computer{typeof zYears === 'number' ? ` (${zYears} in this scenario)` : ''}.
+          {' '}M &gt; 0 means migration is urgent under this scenario, not that data was captured.
+          {exposureData && <> {' '}<strong>{exposedCount}</strong> of {rows.length} channel/table pairs are exposed.</>}
         </div>
       </div>
 
-      {/* Mosca Heat Map Table */}
       <div className="card">
         <div className="card-header">
           <div>
             <div className="card-title">
               <Database style={{ width: 18, height: 18, color: 'var(--accent-cyan)' }} />
-              <span>Channel Mosca Risk Matrix</span>
+              <span>Mosca margins by channel and table</span>
             </div>
-            <div className="card-subtitle">
-              Evaluating store tables against data shelf-life (X) and migration window (Y).
-            </div>
+            <div className="card-subtitle">Exposed = M &gt; 0 and some sessions on the channel still negotiate a classical key exchange.</div>
           </div>
-          <span className="provenance-tag">Calculated from GET /api/exposure?scenario={scenario}</span>
+          <span className="provenance-tag">GET /api/exposure?scenario={scenario}</span>
         </div>
-
         <div className="heatmap-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Channel / Microservice</th>
-                <th>Store Table</th>
-                <th>Driving Attribute</th>
-                <th>Shelf-life (X)</th>
-                <th>Migrate (Y)</th>
-                <th>CRQC (Z)</th>
-                <th>Margin (M)</th>
-                <th>Classical Share</th>
-                <th>Mosca Verdict</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+          {needsRun ? (
+            <div className="banner info"><AlertTriangle style={{ width: 16, height: 16 }} /><span>{needsRun}</span></div>
+          ) : (
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>
-                    Calculating Mosca margins for scenario {scenario}...
-                  </td>
+                  <th>Channel</th><th>Table</th><th>Driving column</th><th>X</th><th>Y</th><th>Z</th><th>M</th><th>Classical share</th><th>Verdict</th>
                 </tr>
-              ) : exposureData?.exposures?.map((exp, idx) => {
-                const isExposed = exp.margin > 0;
-                return (
-                  <tr key={idx} style={{ backgroundColor: isExposed ? 'rgba(239, 68, 68, 0.04)' : undefined }}>
-                    <td>
-                      <strong>{exp.channel}</strong>
-                    </td>
-                    <td><code>{exp.store_table}</code></td>
-                    <td>
-                      <span className="badge-tag" style={{ fontSize: '0.75rem' }}>
-                        {exp.driving_column || 'blood_group (genetic)'}
-                      </span>
-                    </td>
-                    <td>{exp.x_years}y</td>
-                    <td>{exp.y_years}y</td>
-                    <td>{exp.z_years}y</td>
-                    <td>
-                      <strong style={{ color: isExposed ? 'var(--accent-red)' : 'var(--accent-green)' }}>
-                        {exp.margin > 0 ? `+${exp.margin}y` : `${exp.margin}y`}
-                      </strong>
-                    </td>
-                    <td>{(exp.classical_share * 100).toFixed(0)}%</td>
-                    <td>
-                      {isExposed ? (
-                        <span className="badge-tag red">
-                          <AlertTriangle style={{ width: 12, height: 12, display: 'inline', marginRight: 4 }} />
-                          EXPOSED (M &gt; 0)
-                        </span>
-                      ) : (
-                        <span className="badge-tag green">
-                          <CheckCircle2 style={{ width: 12, height: 12, display: 'inline', marginRight: 4 }} />
-                          SAFE (M &le; 0)
-                        </span>
-                      )}
-                    </td>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>Computing margins for {scenario}…</td></tr>
+                ) : rows.length === 0 ? (
+                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>No exposure rows.</td></tr>
+                ) : rows.map((r) => (
+                  <tr key={`${r.channel}|${r.store_table}`} style={{ backgroundColor: r.exposed ? 'rgba(239, 68, 68, 0.04)' : undefined }}>
+                    <td><strong>{r.channel}</strong></td>
+                    <td><code>{r.store_table}</code></td>
+                    <td><code>{String(r.driving_column ?? 'unknown')}</code></td>
+                    <td>{r.x_years}y</td><td>{r.y_years}y</td><td>{r.z_years}y</td>
+                    <td><strong style={{ color: r.margin > 0 ? 'var(--accent-red)' : 'var(--accent-green)' }}>{signed(r.margin)}y</strong></td>
+                    <td>{(r.classical_share * 100).toFixed(0)}%</td>
+                    <td>{verdict(r)}</td>
                   </tr>
-                );
-              }) || (
-                // Sample preview rows if API 409 or empty
-                <>
-                  <tr style={{ backgroundColor: 'rgba(239, 68, 68, 0.05)' }}>
-                    <td><strong>ch_portal_api (nginx → portal)</strong></td>
-                    <td><code>patients</code></td>
-                    <td><span className="badge-tag red">blood_group (genetic)</span></td>
-                    <td>50y</td>
-                    <td>1y</td>
-                    <td>{zYears}y</td>
-                    <td><strong style={{ color: 'var(--accent-red)' }}>+{50 + 1 - zYears}y</strong></td>
-                    <td>70%</td>
-                    <td><span className="badge-tag red">EXPOSED (M &gt; 0)</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>ch_reminders_ssh (batch → worker)</strong></td>
-                    <td><code>appointment_reminders</code></td>
-                    <td><span className="badge-tag green">patient_id (sched)</span></td>
-                    <td>10y</td>
-                    <td>1y</td>
-                    <td>{zYears}y</td>
-                    <td><strong style={{ color: 10 + 1 - zYears > 0 ? 'var(--accent-red)' : 'var(--accent-green)' }}>{10 + 1 - zYears > 0 ? `+${10 + 1 - zYears}y` : `${10 + 1 - zYears}y`}</strong></td>
-                    <td>0% (SSH)</td>
-                    <td>
-                      {10 + 1 - zYears > 0 ? (
-                        <span className="badge-tag red">EXPOSED</span>
-                      ) : (
-                        <span className="badge-tag green">SAFE (M &le; 0)</span>
-                      )}
-                    </td>
-                  </tr>
-                </>
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      {/* Deep-Dive Case Study: Portal vs Appointment Reminders */}
+      <h3 style={{ fontSize: '1rem', margin: '0 0 0.75rem 0' }}>Same crypto, different data, different urgency</h3>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+        The portal and the reminders service run the same nginx TLS configuration. Only the data they carry differs.
+      </p>
       <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
-        <div className="card" style={{ borderLeft: '3px solid var(--accent-red)' }}>
-          <div className="card-header">
-            <div className="card-title" style={{ color: 'var(--accent-red)' }}>
-              <ShieldAlert style={{ width: 18, height: 18 }} />
-              <span>High Risk: Patient Portal (patients table)</span>
-            </div>
-            <span className="badge-tag red">Critical M = +44y</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            The patient portal database contains <code>blood_group</code> and biometric DNA markers classified as
-            <strong> genetic / clinical data</strong> with a mandatory <strong>50-year retention policy</strong> ($X = 50$).
-          </p>
-          <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 6, fontSize: '0.8rem' }}>
-            <div>• <strong>Mosca Margin:</strong> M = 50 + 1 - 7 = <strong>+44 years</strong> (Base 2033)</div>
-            <div>• <strong>Threat:</strong> Harvest Now, Decrypt Later (HNDL). Traffic recorded today over classical TLS 1.2 will remain readable to a 2033 CRQC for 44 years before legal expiration.</div>
-            <div>• <strong>Action:</strong> Remediate to hybrid <code>X25519MLKEM768</code> immediately.</div>
-          </div>
-        </div>
-
-        <div className="card" style={{ borderLeft: '3px solid var(--accent-green)' }}>
-          <div className="card-header">
-            <div className="card-title" style={{ color: 'var(--accent-green)' }}>
-              <CheckCircle2 style={{ width: 18, height: 18 }} />
-              <span>Low Risk: Appointment Reminders</span>
-            </div>
-            <span className="badge-tag green">Benign M = +4y / Safe</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            The notification worker handles <code>appointment_reminders</code> with pseudonymous <code>patient_id</code> and scheduling timestamps, having a <strong>10-year retention policy</strong> ($X = 10$).
-          </p>
-          <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 6, fontSize: '0.8rem' }}>
-            <div>• <strong>Mosca Margin:</strong> M = 10 + 1 - 7 = <strong>+4 years</strong> (Base 2033)</div>
-            <div>• <strong>Threat:</strong> By the time a 2033 CRQC emerges, appointment reminder tokens will have expired and become cryptographically irrelevant.</div>
-            <div>• <strong>Action:</strong> Deprioritized in remediation queue; scheduled for standard lifecycle upgrade.</div>
-          </div>
-        </div>
+        <TwinCard title="Patient portal" row={portal} accent="var(--accent-red)" />
+        <TwinCard title="Appointment reminders" row={reminders} accent="var(--accent-yellow)" />
       </div>
 
-      {/* Regulatory Compliance Countdowns */}
       <div className="card">
         <div className="card-header">
           <div className="card-title">
             <Calendar style={{ width: 18, height: 18, color: 'var(--accent-yellow)' }} />
-            <span>PQC Regulatory Migration Deadlines</span>
+            <span>Deadlines</span>
           </div>
         </div>
         <div className="grid-3">
-          <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '1rem', borderRadius: 6 }}>
-            <div style={{ fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: '0.25rem' }}>NIST FIPS 203 / 204 / 205</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Published August 2024. Standardizes ML-KEM (Key Exchange) and ML-DSA (Digital Signatures).
+          {DEADLINES.map((d) => (
+            <div key={d.date} style={{ backgroundColor: 'var(--bg-subtle)', padding: '1rem', borderRadius: 6 }}>
+              <div style={{ fontWeight: 600, color: 'var(--accent-cyan)' }}>{daysUntil(d.date).toLocaleString()} days</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0' }}>until {d.date}: {d.label}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{d.source}</div>
             </div>
-            <span className="badge-tag green" style={{ marginTop: '0.5rem' }}>Active Standard</span>
-          </div>
-
+          ))}
           <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '1rem', borderRadius: 6 }}>
-            <div style={{ fontWeight: 600, color: 'var(--accent-yellow)', marginBottom: '0.25rem' }}>NSA CNSA 2.0</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Phase 1 mandatory software & firmware transition deadline: <strong>2025 – 2030</strong>.
+            <div style={{ fontWeight: 600, color: 'var(--accent-cyan)' }}>NIST IR 8547 (draft)</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0' }}>
+              Proposed: RSA-2048 and P-256 deprecated after 2030; quantum-vulnerable public-key algorithms disallowed after 2035 for systems following NIST standards.
             </div>
-            <span className="badge-tag yellow" style={{ marginTop: '0.5rem' }}>Enforcement Horizon</span>
-          </div>
-
-          <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '1rem', borderRadius: 6 }}>
-            <div style={{ fontWeight: 600, color: 'var(--accent-purple)', marginBottom: '0.25rem' }}>BSI TR-02102-1</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              German Federal Office for Info Security mandates hybrid post-quantum key exchange for critical infra.
-            </div>
-            <span className="badge-tag accent" style={{ marginTop: '0.5rem' }}>Hybrid Mandate</span>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>A draft proposal, not a universal legal ban.</div>
           </div>
         </div>
       </div>

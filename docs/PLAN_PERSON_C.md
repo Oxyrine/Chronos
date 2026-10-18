@@ -317,8 +317,8 @@ cd ..
 ```
 
 ### Manual Walkthrough
-1. Start API in sample mode: `CHRONOS_USE_SAMPLES=1 & .\.venv\Scripts\python.exe -m uvicorn chronos.api.app:app --port 8000`.
+1. Start API in sample mode with the sample-only dev logins: set `CHRONOS_USE_SAMPLES=1` and `CHRONOS_ALLOW_DEV_PASSWORDS=1`, then `.\.venv\Scripts\python.exe -m uvicorn chronos.api.app:app --port 8000`. Sample mode no longer skips login; the dev passwords (`viewer`/`viewer`, `secops`/`secops`) work only while sample mode is on, never against real data.
 2. Start Vite dev server: `npm.cmd --prefix dashboard run dev`.
-3. Test login with `viewer` and `secops`. Verify `viewer` receives 403 on Approve/Override/Scan.
+3. Test login with `viewer` and `secops`. Verify `viewer` receives 403 on Approve/Override/Scan, and that logging out returns you to `/login`.
 4. Walk through all 5 screens in under 3 minutes with zero browser console errors.
 5. Verify `scripts/demo_flow.py` passes with bearer token.

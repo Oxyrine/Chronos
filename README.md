@@ -132,6 +132,8 @@ Open **`https://localhost:9443`** in a browser supporting post-quantum TLS (Chro
 - Session tokens use PyJWT HS256 stored in `HttpOnly; SameSite=Strict; Secure` cookies.
 - Brute force protection limits failed logins to 5 attempts per 15 minutes per username + IP.
 - Mutation endpoints (`POST`, `PUT`, `DELETE`) strictly require `security_engineer` role (with `/api/auth/login` and `/api/auth/logout` exempt).
+- Sessions are `httpOnly`, `Secure`, `SameSite=Strict` cookies signed with `CHRONOS_JWT_SECRET`; the API refuses to issue sessions if that secret is missing.
+- Sample mode (`CHRONOS_USE_SAMPLES=1`) still requires a login. For local UI work set `CHRONOS_ALLOW_DEV_PASSWORDS=1` to enable `viewer`/`viewer` and `secops`/`secops`; they are refused whenever sample mode is off.
 
 ### 4. Running Tests
 ```bash
