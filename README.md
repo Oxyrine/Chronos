@@ -13,6 +13,20 @@
 
 ---
 
+## Documents
+
+| What | Where |
+|---|---|
+| Architecture diagram | [docs/architecture.png](docs/architecture.png) ([SVG](docs/architecture.svg)) |
+| Solution flowchart | [docs/flowchart.png](docs/flowchart.png) ([SVG](docs/flowchart.svg)) |
+| Measured results (every number in this README) | [out/metrics.json](out/metrics.json) |
+| Benchmarks and verification timings | [out/bench.json](out/bench.json) |
+| Sample CycloneDX 1.6 inventory | [out/cbom.json](out/cbom.json) |
+| Classifier model card (data, results, limits) | [docs/model_card.md](docs/model_card.md) |
+| Questions and answers | [docs/primer.md](docs/primer.md) |
+
+---
+
 ## The Threat: Harvest Now, Decrypt Later (HNDL)
 
 Nation-states and well-funded adversaries are actively recording encrypted enterprise traffic across public internet and partner channels today. When a **Cryptanalytically Relevant Quantum Computer (CRQC)** emerges, Shor's algorithm will instantaneously break the classical asymmetric mathematics (RSA, ECDHE, ECDSA) protecting these recordings.
