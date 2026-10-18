@@ -32,7 +32,8 @@ How the numbers moved, because the deck should not hide it:
 - I read the School errors once earlier and added cross-domain archetypes (grade, allergy, blood_group), so that figure is optimistic. Prefer the leave-one-domain-out mean.
 - The held-out domain has unseen tables and combinations, **not** unseen column semantics: the corpus has one shared vocabulary of 50 semantics.
 - Snap ML on this VM reports "Falling back to CPU-only mode": **no NNPA** for Snap ML. Do not claim an accelerator anywhere.
-- Still to do on the VM: rerun `make train` with the new commit and use those numbers; run the classifier against the real `records-db`.
+- **VM run, Snap ML on s390x, current code (quote these):** validation F1 0.919 / under-protection 2.5%; held-out School F1 **0.821** / **4.2%** (both targets met, the under-protection margin is thin); St. Aster demo columns F1 0.900 / 0.0%; keyword baseline on School F1 0.591 / 28.4%.
+- Still to do on the VM: run the classifier against the real `records-db`; run `python -m chronos.shelflife.train --lodo` there for the leave-one-domain-out figures.
 
 ## B needs from Person A (blocking items first)
 1. `demo/topology.yaml` in the shape of `contracts/samples/topology.json` (channels with `id`, `src`, `dst`, `protocol`, `port`, `reach`, `tables`; plus `tables.{name}.records` and `mean_record_bytes`). Channel ids must be `src->dst` and match the ids used in `ground_truth.yaml`/logs.
