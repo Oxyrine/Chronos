@@ -32,8 +32,8 @@
 - **Architecture Overview:** Chronos operates as an end-to-end cryptographic control plane:
   1. **Discover:** AST and network scanner generates CycloneDX 1.6 Cryptographic Bill of Materials (CBOM).
   2. **Prioritize:** Zero-data-egress in-DB classifier scores data shelf-life ($X$), applying Mosca's Inequality ($M = X + Y - Z$).
-  3. **Fix:** IBM Granite 3.2 synthesizes verified hybrid PQ configuration patches (`X25519MLKEM768`), pre-validated in container sandboxes.
-  4. **Sign:** NIST FIPS 204 **ML-DSA-65** post-quantum signatures recorded on an immutable Merkle ledger.
+  3. **Fix:** IBM Granite 3.3 2B picks a fix template and its parameters under a JSON schema; deterministic code renders the hybrid PQ diff (`X25519MLKEM768`), verified in a container sandbox before a human approves.
+  4. **Sign:** NIST FIPS 204 **ML-DSA-65** post-quantum signatures recorded on a tamper-evident SHA-256 hash-chained ledger.
 
 ---
 
@@ -71,8 +71,8 @@
 
 ---
 
-### Slide 7: Step 3: Fix (Granite 3.2 8B + Sandbox Verification)
-- **Granite 3.2 Seam:** Synthesizes verified hybrid post-quantum configuration diffs (`T1_nginx_hybrid_groups`, `T2_sshd_hybrid_kex`).
+### Slide 7: Step 3: Fix (Granite 3.3 2B behind a typed boundary + Sandbox Verification)
+- **Typed boundary:** Granite can only choose a template (`T1_nginx_hybrid_groups`, `T2_sshd_hybrid_kex`, `T3_client_tls_groups`) and its allowed parameters; it never writes the change itself. Measured template choice: 20/20 with the rules engine, 0/10 validator bypasses (Granite fell back to rules on timeout in the measured run; say so).
 - **Hybrid Security:** Deploys `X25519MLKEM768` (FIPS 203) — combines classical X25519 with ML-KEM lattice key encapsulation.
 - **Sandbox Container Verification (~38.0s):**
   - Ephemeral container spins up with proposed diff.
@@ -86,7 +86,7 @@
 - **Cryptographic Attestation:**
   - Approved exclusively by authorized `security_engineer` (secops) role.
   - Signed with NIST FIPS 204 **ML-DSA-65** post-quantum digital signature.
-  - Linked to previous attestation via SHA-256 Merkle hashes.
+  - Linked to previous attestation via SHA-256 hashes (`prev_hash`).
 - **Immutable Evidence Bundle:** Each entry anchors the CBOM SHA-256, verification log SHA-256, and proposal diff SHA-256.
 - **Public Key:** Downloadable PEM key allows independent third-party verification.
 
@@ -119,8 +119,8 @@
 | **0:00 – 0:25** | **Title Slide → Browser showing Overview Screen**<br/>(URL: `https://localhost:9443`) | *"Nation-states are harvesting encrypted enterprise traffic today to decrypt with future quantum computers. On IBM LinuxONE mainframes, patient genomic records and financial transactions have a 50-year legal shelf-life. Classical encryption will fail long before statutory confidentiality expires. **Chronos understands sensitive data without exporting it, then protects how it travels from here on.** Our framework follows four rigorous steps: Discover, Prioritize, Fix, and Sign."* |
 | **0:25 – 0:55** | **Switch to Inventory (CBOM) Screen**<br/>Click "Run Discovery Scan". | *"Step 1 is Discover. Rather than relying on fragile grep scripts that miss 73% of cryptographic calls, Chronos runs AST parsers and network probes across our seven microservices in just 1.18 seconds. Here we see 26 discovered assets compiled into a standardized CycloneDX 1.6 Cryptographic Bill of Materials—flagging vulnerable RSA-2048 and ECDHE ciphers in Nginx and OpenSSH."* |
 | **0:55 – 1:30** | **Switch to Shelf-life Screen → Overview Heat Map**<br/>Drag CRQC slider from 2033 to 2030. | *"Step 2 is Prioritize. Chronos delivers a zero-data-egress guarantee: SQL aggregates profile columns inside PostgreSQL without raw data ever leaving the database boundary. Snap ML classifies data shelf-life in under 0.1 ms per column. On our Overview screen, we evaluate Michele Mosca's Theorem: Margin equals Shelf-life plus Migration minus Years to Quantum Computer ($M = X + Y - Z$). The patient portal transmits 50-year genetic data, yielding a critical margin of +44 years (red), while appointment reminders are safe (green)."* |
-| **1:30 – 2:15** | **Switch to Remediation Queue**<br/>Select `ch_portal_api`. Click "Run Sandbox Verification". | *"Step 3 is Fix. In the Remediation Queue, findings are ranked by exposure score. We select the patient portal. Granite 3.2 8B synthesizes a verified hybrid patch injecting NIST FIPS 203 `X25519MLKEM768`. Before touching production, we run an automated container sandbox. Over 38 seconds, the sandbox verifies TLS 1.3 handshakes, hybrid negotiation, and legacy client fallback. All four checks pass."* |
-| **2:15 – 2:45** | **Log in as `secops` → Approve Modal → Switch to Ledger** | *"Step 4 is Sign. Mutation and approvals require the `secops` role. Reviewing the diff SHA-256 and CBOM hashes, the security engineer approves the deployment. The target container is rebuilt, post-deploy checks pass, and an attestation is signed with NIST FIPS 204 **ML-DSA-65** post-quantum signatures and anchored to our SHA-256 Merkle ledger."* |
+| **1:30 – 2:15** | **Switch to Remediation Queue**<br/>Select `ch_portal_api`. Click "Run Sandbox Verification". | *"Step 3 is Fix. In the Remediation Queue, findings are ranked by exposure score. We select the patient portal. Granite proposes a fix, but it can only pick a template; it never writes the change itself. The template adds NIST FIPS 203 hybrid `X25519MLKEM768`. Before touching production, we run an automated container sandbox. In about six seconds, the sandbox verifies TLS 1.3 handshakes, hybrid negotiation, and legacy client fallback. All four checks pass."* |
+| **2:15 – 2:45** | **Log in as `secops` → Approve Modal → Switch to Ledger** | *"Step 4 is Sign. Mutation and approvals require the `secops` role. Reviewing the diff SHA-256 and CBOM hashes, the security engineer approves the deployment. The target container is rebuilt, post-deploy checks pass, and an attestation is signed with NIST FIPS 204 **ML-DSA-65** post-quantum signatures and chained into our SHA-256 hash-chained ledger."* |
 | **2:45 – 3:00** | **Overview Metrics Card & Footer**<br/>Highlight Exposure drop and `X-TLS-Group` footer. | *"Returning to the Overview, our Total Exposure Index has dropped from 668,000 to 78,000—an 88.3% risk reduction. In the footer, our active connection is verified running hybrid `X25519MLKEM768` directly on IBM LinuxONE s390x. Chronos delivers proactive, verified post-quantum cryptographic agility today."* |
 
 ---

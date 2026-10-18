@@ -28,14 +28,14 @@ Chronos delivers an end-to-end, verified post-quantum agility lifecycle tailored
 ```mermaid
 flowchart LR
     A["1. DISCOVER<br/>(AST & Config Scanner)<br/>CycloneDX 1.6 CBOM"] --> B["2. PRIORITIZE<br/>(In-DB Snap ML)<br/>Mosca: M = X + Y - Z"]
-    B --> C["3. FIX<br/>(Granite 3.2 8B)<br/>Container Sandbox Verify"]
-    C --> D["4. SIGN<br/>(ML-DSA-65 Attestation)<br/>Immutable Merkle Ledger"]
+    B --> C["3. FIX<br/>(Granite 3.3 2B, typed templates)<br/>Container Sandbox Verify"]
+    C --> D["4. SIGN<br/>(ML-DSA-65 Attestation)<br/>Hash-chained Ledger"]
 ```
 
 1. **Discover (CycloneDX 1.6 CBOM):** Scans codebases, configuration files (Nginx, OpenSSH), and live TLS endpoints to generate a standardized Cryptographic Bill of Materials.
-2. **Prioritize (In-DB Profiling & Mosca's Theorem):** Identifies column-level sensitivity entirely inside PostgreSQL without exporting raw records. Evaluates Michele Mosca's Theorem ($M = X + Y - Z$) to calculate which channels face immediate quantum exposure.
-3. **Fix (Granite 3.2 Remediation Seam):** Synthesizes verified hybrid post-quantum configurations (`X25519MLKEM768`) using IBM Granite 3.2, rigorously verified in an isolated container sandbox before deployment.
-4. **Sign (ML-DSA-65 Attestation Ledger):** Approves changes with post-quantum digital signatures (NIST FIPS 204 ML-DSA-65) chained into an immutable SHA-256 Merkle ledger.
+2. **Prioritize (In-DB Profiling & Mosca's Theorem):** Identifies column-level sensitivity entirely inside PostgreSQL without exporting raw records. Applies Mosca's rule ($M = X + Y - Z$) to calculate which channels face immediate quantum exposure.
+3. **Fix (Granite behind a typed boundary):** IBM Granite 3.3 2B Instruct (Q8_0, big-endian GGUF on llama.cpp) only picks one of three fix templates and its parameters under a JSON schema; deterministic code renders the diff, a validator gates it, a sandbox handshake test verifies hybrid `X25519MLKEM768` / `mlkem768x25519-sha256`, and a human approves. The model never writes the change itself.
+4. **Sign (ML-DSA-65 Attestation Ledger):** Approves changes with post-quantum digital signatures (NIST FIPS 204 ML-DSA-65) chained into a tamper-evident SHA-256 hash-chained ledger.
 
 ---
 
@@ -61,7 +61,7 @@ graph TD
 
     subgraph "Chronos Core Automation"
         Verifier["verifier (Container Sandbox)"]
-        LLM["llm (Granite 3.2 on-demand)"]
+        LLM["llm (Granite 3.3 2B on-demand)"]
         Ledger[("ledger/attestations.jsonl")]
     end
 
@@ -87,8 +87,9 @@ All metrics cited in Chronos are derived directly from reproducible measurements
 | **Shelf-Life** | Under-Protection Error Rate | **4.15% (vs 28.4% baseline)** | Misleading column names test: 71.4% model F1 vs 4.9% keyword baseline. |
 | **Shelf-Life** | Inference Latency | **0.094 ms / column** | Snap ML on s390x; **zero raw cell data egress** (aggregates only). |
 | **Risk Modeling**| Total Exposure Index ($E$) | **668,000 → 78,000 (↓ 88.3%)** | Disclosed 70/30 hybrid client mix; 4 classical routes intentionally open. |
-| **Remediation** | Sandbox Verification Time | **~38.0 seconds** | Full container spin-up, TLS 1.3 handshake & backward-compat suite. |
-| **Attestation** | Post-Quantum Signature | **ML-DSA-65 (FIPS 204)** | Chained SHA-256 Merkle links; public key downloadable in PEM format. |
+| **Remediation** | Template choice (20 seeded findings) | **20 / 20 correct, 0 / 10 validator bypasses** | Measured with the rules engine; the measured Granite run fell back to rules on timeout, so this is not a Granite accuracy figure. |
+| **Remediation** | Sandbox Verification Time | **5.9 s (portal) to 20.9 s (lab-api)** | One sandbox container per fix: hybrid handshake, classical-compat client, health; T1, T2 and T3 all passed. |
+| **Attestation** | Post-Quantum Signature | **ML-DSA-65 (FIPS 204)** | Chained SHA-256 hashes (`prev_hash`); public key downloadable in PEM format. |
 
 ---
 
@@ -150,6 +151,19 @@ To return all microservices to their vulnerable baseline state:
 bash scripts/reset_demo.sh
 ```
 
+### 6. Granite Proposals on the VM
+
+Granite runs on demand (`llm` compose profile, never alongside a sandbox run). Measured on the L1CC VM it reads about 14.5 prompt tokens/s and writes about 5.9 tokens/s, so proposals are pre-generated right after a scan rather than on the demo click:
+
+```bash
+docker compose --profile llm up -d llm
+docker compose exec -e CHRONOS_AGENT_MODE=granite chronos-api python -m chronos.agent.pregenerate
+docker compose exec chronos-api python -m chronos.agent.eval --granite
+docker compose stop llm
+```
+
+The client sends a cached static prefix (instructions and template catalog), a 12-line excerpt and at most 160 output tokens. `CHRONOS_LLM_TIMEOUT` (default 90 s), `CHRONOS_LLM_CONTEXT_LINES` and `CHRONOS_LLM_MAX_TOKENS` tune it. Any timeout falls back to rules and is recorded per proposal (`model: rules-only`, `fallback_reason`), never relabelled as Granite.
+
 ---
 
 ## Repository Structure
@@ -157,7 +171,7 @@ bash scripts/reset_demo.sh
 ```
 Chronos/
 ├── chronos/                  # Python core package
-│   ├── agent/                # Granite 3.2 remediation agent & Jinja2 templates
+│   ├── agent/                # Granite 3.3 2B agent, deterministic T1–T3 renderers, validator
 │   ├── api/                  # FastAPI shell, auth, session cookies, routers
 │   ├── discovery/            # AST parsers, config scanners, CBOM generator
 │   ├── risk/                 # Mosca formula (M = X + Y - Z) & exposure scoring

@@ -15,14 +15,14 @@ Chronos addresses the **Harvest Now, Decrypt Later (HNDL)** threat, where advers
 ```mermaid
 flowchart LR
     A["1. DISCOVER<br/>(AST + Config CBOM)"] --> B["2. PRIORITIZE<br/>(In-DB ML + Mosca M = X + Y - Z)"]
-    B --> C["3. FIX<br/>(Granite 3.2 + Container Sandbox)"]
+    B --> C["3. FIX<br/>(Granite 3.3 2B + Container Sandbox)"]
     C --> D["4. SIGN<br/>(ML-DSA-65 Chained Attestation)"]
 ```
 
 1. **Discover:** Discovers all cryptographic algorithms, keys, protocols, and certificates across heterogeneous microservices into a CycloneDX 1.6 Cryptographic Bill of Materials (CBOM).
 2. **Prioritize:** Classifies the regulatory confidentiality shelf-life ($X$) of database assets entirely in-DB without exporting data, then applies Mosca's Theorem ($M = X + Y - Z$) to prioritize exposed channels.
-3. **Fix:** Synthesizes verified post-quantum configurations (`X25519MLKEM768`) using IBM Granite 3.2, verified within an isolated container sandbox.
-4. **Sign:** Signs every deployed configuration change with post-quantum digital signatures (**ML-DSA-65**, NIST FIPS 204) and records them to an immutable SHA-256 Merkle ledger.
+3. **Fix:** IBM Granite 3.3 2B picks one of three fix templates and its parameters; deterministic code renders the hybrid post-quantum diff (`X25519MLKEM768`), which is verified within an isolated container sandbox and approved by a human.
+4. **Sign:** Signs every deployed configuration change with post-quantum digital signatures (**ML-DSA-65**, NIST FIPS 204) and records them to an tamper-evident SHA-256 hash-chained ledger.
 
 ---
 
@@ -33,9 +33,9 @@ flowchart LR
 | **Discovery** | `chronos.discovery` | AST parsing (Python `ast`, Java regex/javaparser, Nginx/SSH grammars) | **100% recall** tuned (0.933 baseline) across 45 seeded assets; 1.18s scan time. |
 | **In-DB Classification** | `chronos.shelflife` | Snap ML `BoostingMachineClassifier` on s390x (fallback: scikit-learn) | **Macro F1: 0.8207**, 93.5% accuracy; **0.094 ms / column** latency; **Zero data egress** (aggregates only). |
 | **Mosca Risk Modeling** | `chronos.risk.mosca` | Mosca Inequality: $M = X + Y - Z$; Exposure Index $E = \sum_c R_c \cdot M_c \cdot S_{\text{classical}}$ | **88.3% exposure reduction** ($668,000 \to 78,000$) under 70/30 hybrid client mix. |
-| **Configuration Synthesis** | `chronos.agent` | Granite 3.2 8B / 3.3 2B via `llama.cpp` + deterministic Jinja2 templates | 100% template accuracy on 20 test cases; strictly bounded parameter space. |
+| **Template choice** | `chronos.agent` | Granite 3.3 2B (Q8_0, big-endian GGUF) via `llama.cpp` + deterministic Python renderers | 20/20 correct template on seeded cases with the rules engine (not a Granite accuracy figure); 0/10 validator bypasses. |
 | **Sandbox Verification** | `chronos.verify` | Ephemeral Docker sandbox executing live TLS 1.3 handshakes & client fallback | Complete pre-deployment validation in ~38s; zero downtime guarantee. |
-| **Post-Quantum Attestation** | `chronos.verify.attest` | OpenSSL 3.5.5 + `oqsprovider` ML-DSA-65 (FIPS 204) | Cryptographically chained Merkle ledger with tamper detection. |
+| **Post-Quantum Attestation** | `chronos.verify.attest` | OpenSSL 3.5.5 native ML-DSA-65 (FIPS 204) | SHA-256 hash-chained ledger with tamper detection (`GET /ledger/verify`). |
 
 ---
 

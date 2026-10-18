@@ -1,6 +1,7 @@
 """Configuration safety and real store/router behavior; no live model is needed."""
 from concurrent.futures import ThreadPoolExecutor
 import copy
+import json
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -194,3 +195,52 @@ def test_sample_mode_cannot_be_confused_with_evidence(agent_env, monkeypatch):
     result = TestClient(app).post("/proposals", json={"finding_id": "anything"}).json()
     assert result["sample"] and result["state"] == "sample" and result["diff"] == ""
     assert store.get("proposals", []) == []
+
+
+def test_granite_prompt_has_cacheable_prefix_and_small_suffix():
+    first, second = agent_eval.cases()[0], agent_eval.cases()[2]
+    a = llm_client.build_prompt(first["finding"], first["original"])
+    b = llm_client.build_prompt(second["finding"], second["original"])
+    prefix = llm_client.static_prefix()
+    assert a.startswith(prefix) and b.startswith(prefix)
+    assert len(a) - len(prefix) < 1200
+    long_file = "\n".join(f"# filler {i}" for i in range(200)) + "\nssl_ecdh_curve X25519:prime256v1;\n"
+    finding = dict(first["finding"], location={"path": "demo/portal/nginx.conf", "line": 201})
+    excerpt = json.loads(llm_client.build_prompt(finding, long_file).split("UNTRUSTED_CONTEXT_JSON\n")[1].split("\nJSON:")[0])
+    assert len(excerpt["file_excerpt"].splitlines()) == 12
+
+
+def test_granite_payload_uses_cache_cap_and_configurable_timeout(monkeypatch):
+    seen = {}
+
+    class Reply:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self, n):
+            reply = {"template_id": templates.T1, "params": templates.parameters(templates.T1),
+                     "rationale": "Hybrid ML-KEM with classical fallback.", "compatibility_risk": "low"}
+            return json.dumps({"content": json.dumps(reply)}).encode()
+
+    def fake_urlopen(req, timeout):
+        seen["timeout"], seen["body"] = timeout, json.loads(req.data)
+        return Reply()
+
+    monkeypatch.setattr(llm_client.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setenv("CHRONOS_LLM_TIMEOUT", "45")
+    case = agent_eval.cases()[0]
+    assert llm_client.generate(case["finding"], case["original"])["template_id"] == templates.T1
+    assert seen["timeout"] == 45
+    assert seen["body"]["cache_prompt"] is True and seen["body"]["n_predict"] == 160
+    assert seen["body"]["json_schema"] == llm_client.SCHEMA
+
+
+def test_pregenerate_creates_one_proposal_per_templatable_finding(agent_env):
+    from chronos.agent import pregenerate
+    findings = [c["finding"] for c in agent_eval.cases()[:4]]
+    findings.append(dict(agent_eval.finding("demo/billing/Billing.java", 99), asset_type="algorithm"))
+    store.put("findings", findings)
+    report = pregenerate.run(agent_env)
+    assert report["created"] == 4 and report["granite"] == 0 and report["engine"] == "rules"
+    assert {r["template_id"] for r in report["rows"]} == {templates.T1, templates.T2, templates.T3}
+    again = pregenerate.run(agent_env)
+    assert again["created"] == 0 and all(r.get("skipped") for r in again["rows"])

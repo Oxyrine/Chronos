@@ -14,3 +14,4 @@ eval:   ; ./scripts/eval_all.sh              # writes out/metrics.json; add --fu
 
 test-agent: ; $(PY) -m pytest -q tests/test_agent.py
 test-verify: ; $(PY) -m pytest -q tests/test_verify.py tests/test_ledger.py
+pregenerate: ; $(PY) -m chronos.agent.pregenerate   # after POST /scan; set CHRONOS_AGENT_MODE=granite with the llm profile up

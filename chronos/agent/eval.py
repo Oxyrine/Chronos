@@ -13,7 +13,7 @@ import time
 
 from chronos.common import store
 from chronos.discovery.configs import scan_text
-from . import propose
+from . import llm_client, propose
 from .templates import T1, T2, T3, parameters
 from .validator import no_key_material, read_target, validate_proposal
 
@@ -138,6 +138,10 @@ def main():
     args = parser.parse_args()
     if args.granite:
         os.environ["CHRONOS_AGENT_MODE"] = "granite"
+        try:
+            print(f"Granite prompt cache warmed in {llm_client.warm():.1f} s")
+        except (OSError, TimeoutError) as exc:
+            print(f"Granite warm-up failed ({type(exc).__name__}); cases will record their fallback")
     result = run(args.root)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
