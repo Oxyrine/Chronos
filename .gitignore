@@ -20,7 +20,7 @@ out/sandbox/
 out/verify/
 out/logs/
 ledger/
-vendor/
+/vendor/
 out/*.tar.gz
 out/temp-agent*/
 out/demo-fixture-check/
