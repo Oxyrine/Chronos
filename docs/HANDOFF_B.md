@@ -1,6 +1,6 @@
 # Person B handoff: what exists, what B needs, what C mounts
 
-Status date: 17 Oct 2026. Everything below runs and is tested locally on x86 (73 tests). **Nothing has run on the s390x VM yet**; the first VM job is `make test && make train`.
+Status date: 18 Oct 2026. All 73 tests pass on x86 and **on the s390x VM (Snap ML backend)**. Still unverified: the profiling SQL against Postgres, and the discovery scan against Person A's real stack.
 
 ## What is built (Lanes 2, 3, 4 and contracts)
 | Piece | Where | State |
