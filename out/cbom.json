@@ -1,0 +1,1135 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "serialNumber": "urn:uuid:8456f696-ab5b-5f98-b248-f75c68658eab",
+  "metadata": {
+    "timestamp": "2026-10-18T05:01:19Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "chronos",
+          "version": "0.1.0"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsa/demo/billing/Billing.java:7",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "parameterSetIdentifier": "2048"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/billing/Billing.java",
+            "line": 7
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0001"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "java_src"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/sha256withrsa/demo/billing/Billing.java:10",
+      "name": "SHA256withRSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/billing/Billing.java",
+            "line": 10
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0002"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "java_src"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/aesecb/demo/billing/Billing.java:12",
+      "name": "AES-ECB",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 1
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/billing/Billing.java",
+            "line": 12
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0003"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "true"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "java_src"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/sha1/demo/billing/Billing.java:13",
+      "name": "SHA-1",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 1
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/billing/Billing.java",
+            "line": 13
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0004"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "true"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "java_src"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519secp256r1/demo/infra/java.security:1",
+      "name": "x25519,secp256r1",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/infra/java.security",
+            "line": 1
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0005"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519p256/demo/infra/openssl.cnf:7",
+      "name": "X25519:P-256",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/infra/openssl.cnf",
+            "line": 7
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0006"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsa/demo/infra/terraform/main.tf:1",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "other",
+          "size": 2048
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/infra/terraform/main.tf",
+            "line": 1
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0007"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsa/demo/lab-api/crypto_utils.py:9",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "parameterSetIdentifier": "2048"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/crypto_utils.py",
+            "line": 9
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0008"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/aes256gcm/demo/lab-api/crypto_utils.py:10",
+      "name": "AES-256-GCM-256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 1,
+          "parameterSetIdentifier": "256"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/crypto_utils.py",
+            "line": 10
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0009"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsaoaep/demo/lab-api/crypto_utils.py:11",
+      "name": "RSA-OAEP-2048",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "parameterSetIdentifier": "2048"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/crypto_utils.py",
+            "line": 11
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0010"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/ecdsa/demo/lab-api/crypto_utils.py:12",
+      "name": "ECDSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "curve": "secp256r1"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/crypto_utils.py",
+            "line": 12
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0011"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/sha1/demo/lab-api/crypto_utils.py:16",
+      "name": "SHA-1",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 1
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/crypto_utils.py",
+            "line": 16
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0012"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "true"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519p256/demo/lab-api/openssl.cnf:8",
+      "name": "X25519:P-256",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/lab-api/openssl.cnf",
+            "line": 8
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0013"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/curve25519sha256ecdhsha2nistp256/demo/ops-ssh/sshd_config:4",
+      "name": "curve25519-sha256,ecdh-sha2-nistp256",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "ssh"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/ops-ssh/sshd_config",
+            "line": 4
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0014"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/tlsv13tlsv12/demo/partner-lab/nginx.conf:13",
+      "name": "TLSv1.3 TLSv1.2",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "TLSv1.3"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/partner-lab/nginx.conf",
+            "line": 13
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0015"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519mlkem768x25519prime256v1/demo/partner-lab/nginx.conf:14",
+      "name": "X25519MLKEM768:X25519:prime256v1",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/partner-lab/nginx.conf",
+            "line": 14
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0016"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/tlsv13tlsv12/demo/portal/nginx.conf:13",
+      "name": "TLSv1.3 TLSv1.2",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "TLSv1.3"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/portal/nginx.conf",
+            "line": 13
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0017"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519prime256v1/demo/portal/nginx.conf:14",
+      "name": "X25519:prime256v1",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/portal/nginx.conf",
+            "line": 14
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0018"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/prime256v1/demo/records-db/postgresql.conf:5",
+      "name": "prime256v1",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/records-db/postgresql.conf",
+            "line": 5
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0019"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/tlsv13tlsv12/demo/reminders/nginx.conf:13",
+      "name": "TLSv1.3 TLSv1.2",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "TLSv1.3"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/reminders/nginx.conf",
+            "line": 13
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0020"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519prime256v1/demo/reminders/nginx.conf:14",
+      "name": "X25519:prime256v1",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "demo/reminders/nginx.conf",
+            "line": 14
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0021"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/tlsv13/docker/nginx/nginx.conf:9",
+      "name": "TLSv1.3",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "TLSv1.3"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "docker/nginx/nginx.conf",
+            "line": 9
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0022"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/x25519mlkem768x25519/docker/nginx/nginx.conf:10",
+      "name": "X25519MLKEM768:X25519",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "docker/nginx/nginx.conf",
+            "line": 10
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0023"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "resistant"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "configs"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsa/tests/conftest.py:68",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "parameterSetIdentifier": "2048"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "tests/conftest.py",
+            "line": 68
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0024"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/ecdsa/tests/conftest.py:73",
+      "name": "ECDSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "curve": "secp256r1"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "tests/conftest.py",
+            "line": 73
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0025"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/rsa/tests/test_discovery_regressions.py:37",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "s390x",
+          "nistQuantumSecurityLevel": 0,
+          "parameterSetIdentifier": "2048"
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "tests/test_discovery_regressions.py",
+            "line": 37
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "chronos:finding_id",
+          "value": "F-0026"
+        },
+        {
+          "name": "chronos:quantum_status",
+          "value": "vulnerable"
+        },
+        {
+          "name": "chronos:classical_weak",
+          "value": "false"
+        },
+        {
+          "name": "chronos:sources",
+          "value": "python_ast"
+        },
+        {
+          "name": "chronos:method",
+          "value": "deterministic"
+        }
+      ]
+    }
+  ]
+}

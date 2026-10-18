@@ -16,8 +16,18 @@ import secrets
 p=Path('.env')
 values=dict(line.split('=',1) for line in p.read_text().splitlines() if '=' in line and not line.startswith('#'))
 values['CHRONOS_ROOT']=str(Path.cwd())
-for name in ('CHRONOS_WORKER_TOKEN','CHRONOS_API_TOKEN'):
+for name in ('CHRONOS_WORKER_TOKEN','CHRONOS_API_TOKEN','CHRONOS_JWT_SECRET'):
     values.setdefault(name,secrets.token_hex(32))
+if 'CHRONOS_USERS' not in values:
+    import hashlib
+    def mk_scrypt(pwd):
+        salt = secrets.token_bytes(16)
+        key = hashlib.scrypt(pwd.encode('utf-8'), salt=salt, n=16384, r=8, p=1)
+        return f"{salt.hex()}${key.hex()}"
+    viewer_pwd = secrets.token_urlsafe(12)
+    secops_pwd = secrets.token_urlsafe(12)
+    values['CHRONOS_USERS'] = f"viewer:{mk_scrypt(viewer_pwd)},secops:{mk_scrypt(secops_pwd)}"
+    print(f"Generated Chronos web credentials (printed once):\n  viewer: {viewer_pwd}\n  secops: {secops_pwd}")
 values['PGPASSWORD']=values['POSTGRES_PASSWORD']
 p.write_text(''.join(f'{k}={v}\n' for k,v in values.items()))
 p.chmod(0o600)

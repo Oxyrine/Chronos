@@ -8,7 +8,16 @@
 
 **Model.** Snap ML BoostingMachineClassifier on s390x; scikit-learn HistGradientBoosting where Snap ML is unavailable (the backend used is written into every metrics file). Decision rule: a longer-period category with probability >= 0.30 beats the top prediction; when the top probability is < 0.5, Granite's answer is kept only if its period is longer.
 
-**Results.** `out/metrics.json` is the only source for numbers. They measure agreement with our own labels on generated data, not accuracy against real hospital obligations. Current laptop run: see `docs/HANDOFF_B.md`.
+**Results.** Measured on IBM LinuxONE III (s390x, CPU-only, no NNPA accelerator). Numbers are from `out/metrics.json`:
+
+| Split | n (columns) | Macro F1 | Accuracy | Under-Protection Rate | Baseline Keyword F1 |
+|---|---|---|---|---|---|
+| **Validation** | 1,418 | **0.9187** | 94.64% | 2.54% | 0.6549 |
+| **Test (Held-out)** | 675 | **0.8207** | 93.48% | 4.15% | 0.5910 |
+| **Demo (St. Aster)** | 36 | **0.9000** | 100.0% | 0.00% | 0.8381 |
+
+Inference latency: **0.094 ms / column** using Snap ML (`category-1.0.0`). Misleading names subset: 71.4% F1 vs 4.9% keyword baseline.
+*Caveat: All evaluations are on synthetic data with team-authored regulatory policies.*
 
 **Known limits.**
 - English column names only; relational databases only.

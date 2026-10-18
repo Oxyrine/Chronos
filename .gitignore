@@ -25,7 +25,6 @@ out/*.tar.gz
 out/temp-agent*/
 out/demo-fixture-check/
 out/agent_eval.json
-out/bench.json
 out/granite*
 out/evidence/
 out/acceptance/
@@ -34,3 +33,4 @@ out/models/
 out/llama*
 out/*.log
 out/api-model-image-id
+graphify-out/
