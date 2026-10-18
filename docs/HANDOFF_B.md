@@ -35,6 +35,13 @@ How the numbers moved, because the deck should not hide it:
 - **VM run, Snap ML on s390x, current code (quote these):** validation F1 0.919 / under-protection 2.5%; held-out School F1 **0.821** / **4.2%** (both targets met, the under-protection margin is thin); St. Aster demo columns F1 0.900 / 0.0%; keyword baseline on School F1 0.591 / 28.4%.
 - Still to do on the VM: run the classifier against the real `records-db`; run `python -m chronos.shelflife.train --lodo` there for the leave-one-domain-out figures.
 
+### Discovery (Person A's stack on the VM, `out/metrics.json`)
+- First measurement, scored on the saved before-state scan: recall **0.933** (42 of 45 ground-truth assets), precision **1.0**, scan 1.2 s, against a grep baseline of recall 0.267 / precision 0.556. The three misses were `AES-256-GCM` in `crypto_utils.py` and the two `billing.jks` entries.
+- After the follow-up commit (AES-GCM detection, JKS inventory without decrypting private keys): current scan recall **1.0**, precision **1.0** (45 of 45).
+- **Quote 0.933 as the measurement and 1.0 as "after closing the known gaps".** The scanner was extended after seeing which ground-truth items it missed, and the ground truth was written by the stack's author (partly generated from the planted code), so 1.0 is not independent validation.
+- The JKS tests only run where `pyjks` is installed (they skip on Windows). Confirm `pyjks` is in the image that runs discovery, or the keystore half is silently skipped there.
+- An AES key of unknown length is labelled `vulnerable` (conservative, not accurate: AES is not broken by Shor). Cosmetic.
+
 ## B needs from Person A (blocking items first)
 1. `demo/topology.yaml` in the shape of `contracts/samples/topology.json` (channels with `id`, `src`, `dst`, `protocol`, `port`, `reach`, `tables`; plus `tables.{name}.records` and `mean_record_bytes`). Channel ids must be `src->dst` and match the ids used in `ground_truth.yaml`/logs.
 2. `demo/ground_truth.yaml` + agree the match rule in `chronos/discovery/evaluate.py` (same path, algorithm family overlaps, line within 2).
