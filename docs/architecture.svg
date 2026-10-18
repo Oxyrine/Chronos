@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 850" width="1280" height="850" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#455a74"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="850" fill="#ffffff"/>
+
+  <text x="40" y="38" font-size="22" font-weight="700" fill="#1b2a3b">Chronos architecture</text>
+  <text x="40" y="58" font-size="13" fill="#52627a">Everything runs on one IBM LinuxONE (s390x) VM. The browser reaches it through an SSH tunnel.</text>
+
+  <!-- platform band -->
+  <rect x="20" y="75" width="1240" height="700" rx="14" fill="#f6f8fb" stroke="#9aa9bd" stroke-width="1.5"/>
+  <text x="36" y="98" font-size="12" font-weight="700" fill="#3b4a60">IBM LinuxONE VM  ·  s390x  ·  3 vCPU  ·  7.8 GB RAM  ·  Ubuntu 24.04  ·  Docker  ·  no outside API calls</text>
+
+  <!-- operator -->
+  <rect x="40" y="140" width="190" height="100" rx="8" fill="#ffffff" stroke="#6b7c93" stroke-width="1.4"/>
+  <text x="52" y="162" font-size="13" font-weight="700" fill="#1b2a3b">Operator browser</text>
+  <text x="52" y="180" font-size="11" fill="#43536a">Chrome 124+ / Firefox 130+</text>
+  <text x="52" y="198" font-size="11" fill="#43536a">reaches the VM through</text>
+  <text x="52" y="214" font-size="11" fill="#43536a">an SSH tunnel to</text>
+  <text x="52" y="230" font-size="11" fill="#43536a">127.0.0.1:9443</text>
+
+  <rect x="40" y="262" width="190" height="86" rx="8" fill="#ffffff" stroke="#6b7c93" stroke-width="1.4"/>
+  <text x="52" y="284" font-size="13" font-weight="700" fill="#1b2a3b">Two roles</text>
+  <text x="52" y="302" font-size="11" fill="#43536a">viewer: read only</text>
+  <text x="52" y="318" font-size="11" fill="#43536a">secops: scan, propose,</text>
+  <text x="52" y="334" font-size="11" fill="#43536a">verify and approve</text>
+
+
+  <!-- chronos group -->
+  <rect x="290" y="115" width="520" height="610" rx="12" fill="#eef4ff" stroke="#7a9cc6" stroke-width="1.5"/>
+  <text x="302" y="135" font-size="12" font-weight="700" fill="#2d4a73">Chronos (docker compose project)</text>
+
+  <rect x="310" y="150" width="300" height="56" rx="8" fill="#ffffff" stroke="#5b8def" stroke-width="1.4"/>
+  <text x="322" y="170" font-size="13" font-weight="700" fill="#1b2a3b">chronos-nginx :9443</text>
+  <text x="322" y="186" font-size="11" fill="#43536a">TLS 1.3, hybrid X25519MLKEM768</text>
+  <text x="322" y="200" font-size="11" fill="#43536a">serves the dashboard, proxies /api</text>
+
+  <line x1="230" y1="183" x2="310" y2="183" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="310" y="237" width="300" height="56" rx="8" fill="#ffffff" stroke="#5b8def" stroke-width="1.4"/>
+  <text x="322" y="257" font-size="13" font-weight="700" fill="#1b2a3b">chronos-api :8000 (FastAPI)</text>
+  <text x="322" y="273" font-size="11" fill="#43536a">JWT cookie login, viewer and secops</text>
+  <text x="322" y="287" font-size="11" fill="#43536a">routers: scan, shelflife, risk, agent, verify</text>
+  <line x1="460" y1="206" x2="460" y2="237" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- llm -->
+  <rect x="630" y="150" width="160" height="143" rx="8" fill="#ffffff" stroke="#e09b3d" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="642" y="172" font-size="13" font-weight="700" fill="#1b2a3b">llm (on demand)</text>
+  <text x="642" y="192" font-size="11" fill="#43536a">llama.cpp, s390x build</text>
+  <text x="642" y="208" font-size="11" fill="#43536a">IBM Granite 3.3 2B</text>
+  <text x="642" y="224" font-size="11" fill="#43536a">Q8_0, big-endian GGUF</text>
+  <text x="642" y="244" font-size="11" fill="#43536a">picks a template only,</text>
+  <text x="642" y="258" font-size="11" fill="#43536a">never writes files</text>
+  <text x="642" y="278" font-size="11" fill="#43536a">stopped while verifying</text>
+
+  <!-- modules -->
+  <rect x="310" y="315" width="480" height="170" rx="10" fill="#ffffff" stroke="#7a9cc6" stroke-width="1.2"/>
+  <text x="322" y="333" font-size="11" font-style="italic" fill="#2d4a73">Analysis modules inside chronos-api</text>
+  <line x1="460" y1="293" x2="460" y2="315" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="320" y="345" width="226" height="60" rx="7" fill="#e8f1ff" stroke="#5b8def" stroke-width="1.3"/>
+  <text x="332" y="366" font-size="13" font-weight="700" fill="#1b2a3b">Discovery</text>
+  <text x="332" y="384" font-size="11" fill="#43536a">6 scanners, CycloneDX 1.6 CBOM</text>
+
+  <rect x="554" y="345" width="226" height="60" rx="7" fill="#fff3e0" stroke="#e09b3d" stroke-width="1.3"/>
+  <text x="566" y="366" font-size="13" font-weight="700" fill="#1b2a3b">Remediation agent</text>
+  <text x="566" y="384" font-size="11" fill="#43536a">template picker and validator</text>
+  <line x1="710" y1="293" x2="710" y2="345" stroke="#e09b3d" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+
+  <rect x="320" y="415" width="226" height="60" rx="7" fill="#e7f6ec" stroke="#4aa56b" stroke-width="1.3"/>
+  <text x="332" y="436" font-size="13" font-weight="700" fill="#1b2a3b">Shelf-life classifier</text>
+  <text x="332" y="454" font-size="11" fill="#43536a">Snap ML on in-DB aggregates</text>
+
+  <rect x="554" y="415" width="226" height="60" rx="7" fill="#e7f6ec" stroke="#4aa56b" stroke-width="1.3"/>
+  <text x="566" y="436" font-size="13" font-weight="700" fill="#1b2a3b">Risk engine</text>
+  <text x="566" y="454" font-size="11" fill="#43536a">Mosca margin, priority, E</text>
+
+  <!-- verifier -->
+  <rect x="310" y="515" width="480" height="90" rx="8" fill="#f0e9fb" stroke="#8a63c7" stroke-width="1.4"/>
+  <text x="322" y="535" font-size="13" font-weight="700" fill="#1b2a3b">verifier :8090 (internal, token auth)</text>
+  <text x="322" y="553" font-size="11" fill="#43536a">only service with the Docker socket</text>
+  <text x="322" y="569" font-size="11" fill="#43536a">and the ML-DSA-65 signing key</text>
+  <text x="322" y="585" font-size="11" fill="#43536a">sandbox checks, apply, rescan, sign</text>
+  <line x1="460" y1="485" x2="460" y2="515" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- evidence -->
+  <rect x="310" y="635" width="480" height="64" rx="8" fill="#ffffff" stroke="#8a63c7" stroke-width="1.2"/>
+  <text x="322" y="655" font-size="13" font-weight="700" fill="#1b2a3b">Evidence</text>
+  <text x="322" y="672" font-size="11" fill="#43536a">out/store (JSON), out/cbom.json</text>
+  <text x="322" y="688" font-size="11" fill="#43536a">ledger/attestations.jsonl: ML-DSA-65 signed, SHA-256 chained</text>
+  <line x1="460" y1="605" x2="460" y2="635" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- demo target group -->
+  <rect x="900" y="115" width="340" height="610" rx="12" fill="#fff7ec" stroke="#d9a066" stroke-width="1.5"/>
+  <text x="912" y="135" font-size="12" font-weight="700" fill="#7a4b12">St. Aster General (demo target, synthetic data)</text>
+
+  <rect x="915" y="150" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="925" y="171" font-size="12.5" font-weight="700" fill="#1b2a3b">portal :8443</text>
+  <text x="925" y="189" font-size="11" fill="#43536a">nginx, RSA-2048 cert</text>
+  <rect x="1075" y="150" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="1085" y="171" font-size="12.5" font-weight="700" fill="#1b2a3b">reminders :8444</text>
+  <text x="1085" y="189" font-size="11" fill="#43536a">same TLS as portal</text>
+
+  <rect x="915" y="220" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="925" y="241" font-size="12.5" font-weight="700" fill="#1b2a3b">portal-app</text>
+  <text x="925" y="259" font-size="11" fill="#43536a">patient records API</text>
+  <rect x="1075" y="220" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="1085" y="241" font-size="12.5" font-weight="700" fill="#1b2a3b">lab-api</text>
+  <text x="1085" y="259" font-size="11" fill="#43536a">outbound TLS + RSA-OAEP</text>
+
+  <rect x="915" y="290" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="925" y="311" font-size="12.5" font-weight="700" fill="#1b2a3b">ops-ssh :2222</text>
+  <text x="925" y="329" font-size="11" fill="#43536a">OpenSSH, RSA host key</text>
+  <rect x="1075" y="290" width="150" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="1085" y="311" font-size="12.5" font-weight="700" fill="#1b2a3b">partner-lab :8443</text>
+  <text x="1085" y="329" font-size="11" fill="#43536a">hybrid TLS enabled</text>
+
+  <rect x="915" y="360" width="310" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="925" y="381" font-size="12.5" font-weight="700" fill="#1b2a3b">Files only: billing (Java), infra (Terraform)</text>
+  <text x="925" y="399" font-size="11" fill="#43536a">scanned for crypto, never run</text>
+
+  <rect x="915" y="440" width="310" height="56" rx="7" fill="#ffffff" stroke="#d9a066" stroke-width="1.3"/>
+  <text x="925" y="461" font-size="12.5" font-weight="700" fill="#1b2a3b">records-db (Postgres 16)</text>
+  <text x="925" y="479" font-size="11" fill="#43536a">9 synthetic tables, 913,000 rows</text>
+
+  <rect x="915" y="530" width="310" height="70" rx="7" fill="#ffffff" stroke="#8a63c7" stroke-width="1.3" stroke-dasharray="6 4"/>
+  <text x="925" y="551" font-size="12.5" font-weight="700" fill="#1b2a3b">Sandbox copy</text>
+  <text x="925" y="569" font-size="11" fill="#43536a">docker compose -p sandbox</text>
+  <text x="925" y="585" font-size="11" fill="#43536a">one container, removed after its checks</text>
+
+  <text x="915" y="640" font-size="11" font-style="italic" fill="#7a4b12">Before state is pinned to classical key</text>
+  <text x="915" y="656" font-size="11" font-style="italic" fill="#7a4b12">exchange (X25519, curve25519-sha256)</text>
+  <text x="915" y="672" font-size="11" font-style="italic" fill="#7a4b12">so every fix has a measurable effect.</text>
+
+  <!-- arrows from chronos to target -->
+  <text x="818" y="366" font-size="10.5" fill="#43536a">scan files,</text>
+  <text x="818" y="379" font-size="10.5" fill="#43536a">probe TLS, SSH</text>
+  <line x1="790" y1="388" x2="915" y2="388" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <text x="818" y="446" font-size="10.5" fill="#43536a">aggregate-only</text>
+  <text x="818" y="459" font-size="10.5" fill="#43536a">profiling SQL</text>
+  <line x1="790" y1="468" x2="915" y2="468" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <text x="818" y="543" font-size="10.5" fill="#43536a">verify patch</text>
+  <text x="818" y="556" font-size="10.5" fill="#43536a">in a copy</text>
+  <line x1="790" y1="565" x2="915" y2="565" stroke="#455a74" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- legend -->
+  <text x="40" y="802" font-size="12" fill="#43536a">Solid arrow: data flow.  Dashed box or arrow: started on demand, or an isolated copy.</text>
+  <text x="40" y="822" font-size="12" fill="#43536a">IBM stack: Snap ML, Granite 3.3 2B, CycloneDX 1.6 CBOM, OpenSSL 3.5 (ML-KEM, ML-DSA), OpenSSH 10. CPU only, no NNPA accelerator.</text>
+</svg>

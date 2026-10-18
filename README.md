@@ -41,35 +41,17 @@ flowchart LR
 
 ## Architecture
 
-Chronos inspects and protects seven enterprise microservices deployed in a simulated healthcare enterprise:
+Chronos inspects and protects a simulated hospital (St. Aster General): seven running services, plus billing and infrastructure files that are scanned but never run. Everything runs on one IBM LinuxONE VM.
 
-```mermaid
-graph TD
-    Client["Clients & Clinicians"] -->|TLS 1.3 / X25519MLKEM768| Edge["chronos-nginx (Port 9443)"]
-    Edge -->|Proxy /api| API["chronos-api (FastAPI)"]
-    Edge -->|Static Assets| Dashboard["React Dashboard (dist/)"]
+![Chronos architecture](docs/architecture.png)
 
-    subgraph "Target Enterprise Microservices (s390x)"
-        Portal["portal-api (Nginx)"]
-        Reminders["reminders-api (FastAPI)"]
-        OpsSSH["ops-ssh (OpenSSH)"]
-        Partner["partner-lab"]
-        Billing["billing (Spring Boot)"]
-        Auth["auth service"]
-        DB[("records-db (PostgreSQL 16)")]
-    end
+([SVG version](docs/architecture.svg))
 
-    subgraph "Chronos Core Automation"
-        Verifier["verifier (Container Sandbox)"]
-        LLM["llm (Granite 3.3 2B on-demand)"]
-        Ledger[("ledger/attestations.jsonl")]
-    end
+### Solution flow
 
-    API --> DB
-    API --> Verifier
-    API --> LLM
-    Verifier --> Ledger
-```
+![Chronos solution flow](docs/flowchart.png)
+
+([SVG version](docs/flowchart.svg))
 
 *Note on Architecture:* CPU-only execution on IBM LinuxONE s390x (NNPA neural hardware accelerator is not configured). Redis and the P1 real-time anomaly model were not built.
 
