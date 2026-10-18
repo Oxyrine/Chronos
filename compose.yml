@@ -1,0 +1,86 @@
+name: chronos
+services:
+  chronos-api:
+    image: chronos-pybase:local
+    working_dir: ${CHRONOS_ROOT:-/opt/chronos}
+    command: [python, -m, uvicorn, chronos.api.app:app, --host, 0.0.0.0, --port, '8000']
+    env_file: .env
+    environment:
+      CHRONOS_USE_SAMPLES: '0'
+      CHRONOS_REPO: ${CHRONOS_ROOT:-/opt/chronos}
+      CHRONOS_ROOT: ${CHRONOS_ROOT:-/opt/chronos}
+      CHRONOS_OUT: ${CHRONOS_ROOT:-/opt/chronos}/out
+      CHRONOS_TOPOLOGY: ${CHRONOS_ROOT:-/opt/chronos}/demo/topology.yaml
+      CHRONOS_PROBE_URL: http://verifier:8090
+      CHRONOS_VERIFIER_URL: http://verifier:8090
+      CHRONOS_LLM_URL: http://llm:8080
+      CHRONOS_PSQL_CMD: psql -h records-db -U chronos -d staster -At
+      PGSSLMODE: require
+      CHRONOS_NGINX_LOG: ${CHRONOS_ROOT:-/opt/chronos}/out/logs/*/chronos.log
+    volumes:
+      - .:${CHRONOS_ROOT:-/opt/chronos}
+      - type: tmpfs
+        target: ${CHRONOS_ROOT:-/opt/chronos}/keys
+    networks: [staster]
+    mem_limit: 1g
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+  verifier:
+    image: chronos-verifier:local
+    build:
+      context: .
+      dockerfile: docker/verifier/Dockerfile
+    working_dir: ${CHRONOS_ROOT:-/opt/chronos}
+    command: [python3, -m, chronos.verify.worker]
+    env_file: .env
+    environment:
+      CHRONOS_ROOT: ${CHRONOS_ROOT:-/opt/chronos}
+      CHRONOS_REPO: ${CHRONOS_ROOT:-/opt/chronos}
+      CHRONOS_OUT: ${CHRONOS_ROOT:-/opt/chronos}/out
+      CHRONOS_TOPOLOGY: ${CHRONOS_ROOT:-/opt/chronos}/demo/topology.yaml
+      CHRONOS_USE_SAMPLES: '0'
+      CHRONOS_PROBE_URL: http://verifier:8090
+      CHRONOS_WORKER_TOKEN: ${CHRONOS_WORKER_TOKEN:?Run scripts/run_all.sh}
+      CHRONOS_PUBLIC_KEY: /keys/chronos-mldsa65.pub.pem
+    volumes:
+      - .:${CHRONOS_ROOT:-/opt/chronos}
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/chronos-build.lock:/run/chronos-build.lock
+      - ./keys:/keys:ro
+    networks: [staster]
+    mem_limit: 512m
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8090/health]
+      interval: 10s
+      timeout: 5s
+  chronos-nginx:
+    image: chronos-base:local
+    command: [nginx, -g, 'daemon off;', -c, /etc/nginx/chronos.conf]
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/chronos.conf:ro
+      - ./demo/chronos-nginx/certs:/keys:ro
+      - ./dashboard/dist:/dashboard:ro
+    ports: ['127.0.0.1:9443:9443']
+    networks: [staster]
+    depends_on: [chronos-api]
+    mem_limit: 128m
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, --cacert, /keys/ca.pem, https://localhost:9443/health]
+      interval: 10s
+      timeout: 5s
+  llm:
+    image: chronos-llm:local
+    profiles: [llm]
+    command: [-m, /models/granite-3.3-2b-instruct-q8_0-be.gguf, -t, '3', -c, '4096', --host, 0.0.0.0, --port, '8080']
+    volumes: ['./out/models:/models:ro']
+    networks: [staster]
+    mem_limit: 4g
+  redis:
+    image: redis:7
+    profiles: [p1]
+    networks: [staster]
+    mem_limit: 128m
+networks:
+  staster:
+    external: true

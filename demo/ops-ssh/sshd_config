@@ -1,0 +1,14 @@
+Port 2222
+ListenAddress 0.0.0.0
+HostKey /keys/ssh_host_rsa_key
+KexAlgorithms curve25519-sha256,ecdh-sha2-nistp256
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+AuthorizedKeysFile /keys/authorized_keys
+AllowUsers probe
+StrictModes no
+UsePAM no
+PidFile /run/sshd.pid
+LogLevel VERBOSE

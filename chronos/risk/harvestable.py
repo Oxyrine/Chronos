@@ -10,6 +10,7 @@ from chronos.risk.catalog import kex_class
 DEFAULT_ROUTES = [  # longest prefix wins
     ("/api/patients", "patients"), ("/api/records", "encounters"), ("/api/encounters", "encounters"),
     ("/api/genomics", "genomics_results"), ("/api/labs", "lab_results"), ("/api/reminders", "appointment_reminders"),
+    ("/ingest", "lab_results"),  # fixed lab-api forward route; exact synthetic payload count
 ]
 
 
@@ -36,5 +37,10 @@ def transfers(log_lines, mean_record_bytes: dict, routes=DEFAULT_ROUTES, margin_
         if cls == "classical" and ok:
             row["classical_route_open"] = True
             if margin_positive is None or table in margin_positive:
-                row["R"] += int(int(ev.get("bytes_sent", ev.get("bytes", 0))) / mean_record_bytes[table])
+                count = ev.get("record_count")
+                if count is not None and str(count).isdigit():
+                    row["R"] += int(count)
+                else:
+                    row["R"] += int(int(ev.get("bytes_sent", ev.get("bytes", 0))) / mean_record_bytes[table])
+                    row["R_is_estimated"] = True
     return out

@@ -1,15 +1,11 @@
 """POST /scan, GET /scan/{id}, GET /cbom, GET /findings. Mount with app.include_router(router)."""
-import json
-import os
-import pathlib
 import threading
 import uuid
 
 from fastapi import APIRouter, HTTPException
 
 from chronos.common import samples, store
-from chronos.discovery import cbom_writer, scan as scanner
-from chronos.risk.service import topology
+from chronos.discovery.service import rescan
 
 router = APIRouter(tags=["discovery"])
 _SCANS: dict[str, dict] = {}
@@ -17,15 +13,7 @@ _SCANS: dict[str, dict] = {}
 
 def _run(scan_id: str) -> None:
     try:
-        base = pathlib.Path(os.environ.get("CHRONOS_REPO", "."))
-        roots = [base / d for d in os.environ.get("CHRONOS_SCAN_DIRS", "demo,infra").split(",") if (base / d).exists()]
-        probe = scanner.live_probe.shell_runner if os.environ.get("CHRONOS_LIVE_PROBE", "1") == "1" else None
-        res = scanner.run(roots, topology(), base=base, probe=probe, use_llm=os.environ.get("CHRONOS_LLM_ASSIST") == "1")
-        cbom_writer.validate(res["cbom"])
-        store.put("findings", res["findings"])
-        store.put("cbom", res["cbom"])
-        pathlib.Path("out").mkdir(exist_ok=True)
-        pathlib.Path("out/cbom.json").write_text(json.dumps(res["cbom"], indent=2))
+        res = rescan()
         _SCANS[scan_id] = {"scan_id": scan_id, "status": "done", **res["stats"]}
     except Exception as e:  # surface to the poller instead of dying silently in the thread
         _SCANS[scan_id] = {"scan_id": scan_id, "status": "failed", "error": str(e)}

@@ -126,7 +126,7 @@ def _jks(path_obj, path: str):
 def scan(root, base=None) -> list[dict]:
     base = base or root
     out = []
-    for p in iter_files(root, SUFFIXES):
+    for p in iter_files(root, SUFFIXES, names=("ssh_host_rsa_key", "probe_key")):
         path, data = rel(p, base), p.read_bytes()
         if p.suffix.lower() in (".p12", ".pfx"):
             out += _p12(data, path)

@@ -7,12 +7,15 @@ import os
 import re
 import shlex
 import subprocess
+import json
+import urllib.parse
+import urllib.request
 
 from chronos.discovery.common import asset
 from chronos.risk.catalog import kex_class
 
 SOURCE = "live_probe"
-TLS_GROUP = re.compile(r"(?:Negotiated TLS1\.3 group|Server Temp Key):\s*([A-Za-z0-9_\-]+)")
+TLS_GROUP = re.compile(r"(?:Negotiated TLS1\.3 group|Server Temp Key|Peer Temp Key):\s*([A-Za-z0-9_\-]+)")
 TLS_PROTO = re.compile(r"Protocol version:\s*(\S+)|Protocol\s*:\s*(\S+)")
 SSH_KEX = re.compile(r"kex: algorithm:\s*(\S+)")
 
@@ -36,6 +39,25 @@ def shell_runner(cmd: list[str], timeout: int = 15) -> str:
     return r.stdout + r.stderr
 
 
+def http_runner(cmd: list[str], timeout: int = 15) -> str:
+    """Translate our two fixed probe commands to the internal allow-listed worker."""
+    if cmd[:2] == ["openssl", "s_client"]:
+        host, port = cmd[cmd.index("-connect") + 1].rsplit(":", 1)
+        protocol = "tls"
+    elif cmd[0] == "ssh":
+        host, port = cmd[-2].split("@", 1)[1], cmd[cmd.index("-p") + 1]
+        protocol = "ssh"
+    else:
+        raise ValueError("unsupported probe command")
+    url = os.environ["CHRONOS_PROBE_URL"].rstrip("/") + "/probe/" + protocol + "?" + urllib.parse.urlencode({"host": host, "port": port})
+    request = urllib.request.Request(url, headers={"Authorization": "Bearer " + os.environ["CHRONOS_WORKER_TOKEN"]})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        body = json.load(response)
+    if body.get('returncode', 0):
+        raise OSError('authenticated protocol probe failed')
+    return body.get("output", body.get("stdout", ""))
+
+
 def probe_channel(ch: dict, run=shell_runner) -> dict | None:
     host, port = ch["dst"], ch.get("port", 443)
     if ch["protocol"] == "tls":
@@ -46,6 +68,8 @@ def probe_channel(ch: dict, run=shell_runner) -> dict | None:
 def scan(topology: dict, run=shell_runner) -> list[dict]:
     out = []
     for ch in topology["channels"]:
+        if ch.get("probe", True) is False:
+            continue
         try:
             got = probe_channel(ch, run)
         except (subprocess.SubprocessError, OSError):

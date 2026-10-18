@@ -11,3 +11,6 @@ test:           ; CHRONOS_ROUNDS=40 $(PY) -m pytest -q
 corpus: ; $(PY) -m data.gen_schemas          # seed 7, ~20 s; writes data/generated/columns.jsonl and data/labels.yaml
 train:  corpus ; $(PY) -m chronos.shelflife.train   # run on the VM: the model is only ever loaded on the machine that trained it
 eval:   ; ./scripts/eval_all.sh              # writes out/metrics.json; add --full for leave-one-domain-out
+
+test-agent: ; $(PY) -m pytest -q tests/test_agent.py
+test-verify: ; $(PY) -m pytest -q tests/test_verify.py tests/test_ledger.py

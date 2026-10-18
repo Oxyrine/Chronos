@@ -1,0 +1,108 @@
+{
+  "channels": [
+    {
+      "id": "internet->portal",
+      "src": "internet",
+      "dst": "portal",
+      "protocol": "tls",
+      "port": 8443,
+      "reach": "internet",
+      "tables": [
+        "patients",
+        "encounters",
+        "appointment_reminders",
+        "otp_codes"
+      ],
+      "probe": true
+    },
+    {
+      "id": "internet->reminders",
+      "src": "internet",
+      "dst": "reminders",
+      "protocol": "tls",
+      "port": 8444,
+      "reach": "internet",
+      "tables": [
+        "appointment_reminders"
+      ],
+      "probe": true
+    },
+    {
+      "id": "lab-api->partner-lab",
+      "src": "lab-api",
+      "dst": "partner-lab",
+      "protocol": "tls",
+      "port": 8443,
+      "reach": "partner",
+      "tables": [
+        "lab_results",
+        "genomics_results"
+      ],
+      "probe": false
+    },
+    {
+      "id": "clinician->ops-ssh",
+      "src": "clinician",
+      "dst": "ops-ssh",
+      "protocol": "ssh",
+      "port": 2222,
+      "reach": "internal",
+      "tables": [
+        "encounters"
+      ],
+      "probe": true
+    }
+  ],
+  "tables": {
+    "patients": {
+      "records": 50000,
+      "store": "records-db",
+      "mean_record_bytes": 189.083
+    },
+    "encounters": {
+      "records": 200000,
+      "store": "records-db",
+      "mean_record_bytes": 187.867
+    },
+    "genomics_results": {
+      "records": 8000,
+      "store": "records-db",
+      "mean_record_bytes": 125.984
+    },
+    "child_immunizations": {
+      "records": 30000,
+      "store": "records-db",
+      "mean_record_bytes": 95.601
+    },
+    "lab_results": {
+      "records": 400000,
+      "store": "records-db",
+      "mean_record_bytes": 132.282
+    },
+    "billing_invoices": {
+      "records": 150000,
+      "store": "records-db",
+      "mean_record_bytes": 135.248
+    },
+    "appointment_reminders": {
+      "records": 60000,
+      "store": "records-db",
+      "mean_record_bytes": 164.372
+    },
+    "staff_sessions": {
+      "records": 5000,
+      "store": "records-db",
+      "mean_record_bytes": 148.555
+    },
+    "otp_codes": {
+      "records": 10000,
+      "store": "records-db",
+      "mean_record_bytes": 89.889
+    }
+  },
+  "remaining_risks": [
+    "portal-app to records-db uses classical PostgreSQL TLS and is not remediated by T1-T3",
+    "RSA certificate signatures, lab RSA-OAEP and ECDSA paths remain classical",
+    "70/30 client mix is a controlled demonstration, not an estimate of hospital clients"
+  ]
+}

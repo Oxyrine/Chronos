@@ -1,6 +1,7 @@
 """Glue for the API and eval: latest findings + predictions + topology (+ measured client mix, nginx log) -> exposures."""
 import os
 import pathlib
+import glob
 
 import yaml
 
@@ -16,10 +17,12 @@ def topology() -> dict:
 def already_sent(topo: dict, exposed_tables: set[str], log_path=None) -> dict:
     """R per table from the nginx chronos log: transfers already made over classical sessions (a fix cannot undo these)."""
     log_path = log_path or os.environ.get("CHRONOS_NGINX_LOG")
-    if not log_path or not pathlib.Path(log_path).exists():
+    paths = [pathlib.Path(p) for p in glob.glob(str(log_path))] if log_path else []
+    if not paths:
         return {}
     means = {t: v.get("mean_record_bytes", 500) for t, v in topo["tables"].items()}
-    return harvestable.transfers(pathlib.Path(log_path).read_text().splitlines(), means, margin_positive=exposed_tables)
+    lines = [line for path in sorted(paths) for line in path.read_text().splitlines()]
+    return harvestable.transfers(lines, means, margin_positive=exposed_tables)
 
 
 def compute(findings: list[dict], predictions: list[dict], topo: dict, client_q: dict | None = None,

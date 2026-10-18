@@ -1,0 +1,436 @@
+{
+  "assets": [
+    {
+      "id": "A-001",
+      "path": "demo/portal/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "TLSv1.3 TLSv1.2",
+      "params": {},
+      "quantum_status": "resistant",
+      "line": 13
+    },
+    {
+      "id": "A-002",
+      "path": "demo/portal/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "X25519:prime256v1",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 14
+    },
+    {
+      "id": "A-003",
+      "path": "demo/reminders/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "TLSv1.3 TLSv1.2",
+      "params": {},
+      "quantum_status": "resistant",
+      "line": 13
+    },
+    {
+      "id": "A-004",
+      "path": "demo/reminders/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "X25519:prime256v1",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 14
+    },
+    {
+      "id": "A-005",
+      "path": "demo/partner-lab/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "TLSv1.3 TLSv1.2",
+      "params": {},
+      "quantum_status": "resistant",
+      "line": 13
+    },
+    {
+      "id": "A-006",
+      "path": "demo/partner-lab/nginx.conf",
+      "asset_type": "protocol",
+      "algorithm": "X25519MLKEM768:X25519:prime256v1",
+      "params": {},
+      "quantum_status": "resistant",
+      "line": 14
+    },
+    {
+      "id": "A-007",
+      "path": "demo/portal/certs/server.crt",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-008",
+      "path": "demo/portal/certs/server.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-009",
+      "path": "demo/portal/certs/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-010",
+      "path": "demo/reminders/certs/server.crt",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-011",
+      "path": "demo/reminders/certs/server.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-012",
+      "path": "demo/reminders/certs/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-013",
+      "path": "demo/partner-lab/certs/server.crt",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-014",
+      "path": "demo/partner-lab/certs/server.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-015",
+      "path": "demo/partner-lab/certs/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-016",
+      "path": "demo/records-db/certs/server.crt",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-017",
+      "path": "demo/records-db/certs/server.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-018",
+      "path": "demo/records-db/certs/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-019",
+      "path": "demo/chronos-nginx/certs/server.crt",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-020",
+      "path": "demo/chronos-nginx/certs/server.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-021",
+      "path": "demo/chronos-nginx/certs/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-022",
+      "path": "demo/ca/ca.pem",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-023",
+      "path": "demo/ca/ca.key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-024",
+      "path": "demo/records-db/postgresql.conf",
+      "asset_type": "protocol",
+      "algorithm": "prime256v1",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 5
+    },
+    {
+      "id": "A-025",
+      "path": "demo/ops-ssh/sshd_config",
+      "asset_type": "protocol",
+      "algorithm": "curve25519-sha256,ecdh-sha2-nistp256",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 4
+    },
+    {
+      "id": "A-026",
+      "path": "demo/ops-ssh/certs/ssh_host_rsa_key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-027",
+      "path": "demo/ops-ssh/certs/probe_key",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-028",
+      "path": "demo/lab-api/openssl.cnf",
+      "asset_type": "protocol",
+      "algorithm": "X25519:P-256",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 8
+    },
+    {
+      "id": "A-029",
+      "path": "demo/infra/openssl.cnf",
+      "asset_type": "protocol",
+      "algorithm": "X25519:P-256",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 7
+    },
+    {
+      "id": "A-030",
+      "path": "demo/lab-api/crypto_utils.py",
+      "asset_type": "algorithm",
+      "algorithm": "RSA",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 9
+    },
+    {
+      "id": "A-031",
+      "path": "demo/lab-api/crypto_utils.py",
+      "asset_type": "algorithm",
+      "algorithm": "RSA-OAEP",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 11
+    },
+    {
+      "id": "A-032",
+      "path": "demo/lab-api/crypto_utils.py",
+      "asset_type": "algorithm",
+      "algorithm": "ECDSA",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 12
+    },
+    {
+      "id": "A-033",
+      "path": "demo/lab-api/crypto_utils.py",
+      "asset_type": "algorithm",
+      "algorithm": "SHA-1",
+      "params": {},
+      "quantum_status": "weakened",
+      "line": 16
+    },
+    {
+      "id": "A-034",
+      "path": "demo/lab-api/crypto_utils.py",
+      "asset_type": "algorithm",
+      "algorithm": "AES-256-GCM",
+      "params": {
+        "key_bits": 256
+      },
+      "quantum_status": "resistant",
+      "line": 10
+    },
+    {
+      "id": "A-035",
+      "path": "demo/billing/Billing.java",
+      "asset_type": "algorithm",
+      "algorithm": "RSA",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 7
+    },
+    {
+      "id": "A-036",
+      "path": "demo/billing/Billing.java",
+      "asset_type": "algorithm",
+      "algorithm": "SHA256withRSA",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 10
+    },
+    {
+      "id": "A-037",
+      "path": "demo/billing/Billing.java",
+      "asset_type": "algorithm",
+      "algorithm": "AES-ECB",
+      "params": {},
+      "quantum_status": "resistant",
+      "line": 12
+    },
+    {
+      "id": "A-038",
+      "path": "demo/billing/Billing.java",
+      "asset_type": "algorithm",
+      "algorithm": "SHA-1",
+      "params": {},
+      "quantum_status": "weakened",
+      "line": 13
+    },
+    {
+      "id": "A-039",
+      "path": "demo/billing/billing.jks",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-040",
+      "path": "demo/billing/billing.jks",
+      "asset_type": "certificate",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-041",
+      "path": "demo/infra/terraform/main.tf",
+      "asset_type": "related-crypto-material",
+      "algorithm": "RSA",
+      "params": {
+        "key_bits": 2048
+      },
+      "quantum_status": "vulnerable",
+      "line": 1
+    },
+    {
+      "id": "A-042",
+      "path": "demo/infra/java.security",
+      "asset_type": "protocol",
+      "algorithm": "x25519,secp256r1",
+      "params": {},
+      "quantum_status": "vulnerable",
+      "line": 1
+    },
+    {
+      "id": "A-043",
+      "path": "live://portal:8443",
+      "asset_type": "protocol",
+      "algorithm": "X25519",
+      "params": {},
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-044",
+      "path": "live://reminders:8444",
+      "asset_type": "protocol",
+      "algorithm": "X25519",
+      "params": {},
+      "quantum_status": "vulnerable"
+    },
+    {
+      "id": "A-045",
+      "path": "live://ops-ssh:2222",
+      "asset_type": "protocol",
+      "algorithm": "curve25519-sha256",
+      "params": {},
+      "quantum_status": "vulnerable"
+    }
+  ],
+  "notes": [
+    "Baseline inventory: regenerate after a reset, not after a patch; retain before findings separately.",
+    "AES-256-GCM intentionally remains in ground truth although the present AST scanner misses it.",
+    "Live partner-lab probe is excluded because the measured channel is the pinned lab-api client."
+  ]
+}

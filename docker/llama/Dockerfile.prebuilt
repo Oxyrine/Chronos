@@ -1,0 +1,12 @@
+# Official s390x server binaries, pinned to the manifest actually inspected.
+# Its upstream Ubuntu 24 runtime lacks OPENSSL_3.3.0; use our OpenSSL 3.5 base.
+FROM ghcr.io/ggml-org/llama.cpp@sha256:ff475fa2bab9992d6d5567575f407994e1a111ec72c65d7e9ce5b2bd84438571 AS upstream
+FROM chronos-base:local
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    libopenblas0 libgomp1 libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=upstream /llama.cpp/bin/ /opt/llama/bin/
+COPY --from=upstream /usr/lib/s390x-linux-gnu/libllama*.so* /usr/lib/s390x-linux-gnu/libggml*.so* /usr/lib/s390x-linux-gnu/libmtmd*.so* /opt/llama/lib/
+ENV LD_LIBRARY_PATH=/opt/llama/lib:/opt/llama/bin
+RUN ln -s /opt/llama/bin/llama-server /llama-server && /llama-server --version
+ENTRYPOINT ["/llama-server"]

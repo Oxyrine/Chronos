@@ -1,0 +1,134 @@
+name: staster
+x-nginx: &nginx
+  pull_policy: never
+  mem_limit: 128m
+  networks: [staster]
+  restart: unless-stopped
+  healthcheck:
+    test: [CMD-SHELL, "curl --fail --silent --cacert /keys/ca.pem https://localhost:$${HEALTH_PORT}/health >/dev/null"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 20s
+services:
+  records-db:
+    image: postgres:16
+    pull_policy: never
+    container_name: records-db
+    mem_limit: 256m
+    environment:
+      POSTGRES_USER: chronos
+      POSTGRES_DB: staster
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/seed_crypto.sh first}
+    entrypoint: [/bin/sh, /entrypoint-chronos.sh]
+    command: [postgres, -c, config_file=/etc/postgresql/postgresql.conf]
+    volumes:
+      - records-data:/var/lib/postgresql/data
+      - ./records-db/generated:/docker-entrypoint-initdb.d:ro
+      - ./records-db/certs:/keys:ro
+      - ./records-db/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./records-db/entrypoint.sh:/entrypoint-chronos.sh:ro
+    networks: [staster]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U chronos -d staster && psql -U chronos -d staster -Atc 'SELECT count(*) FROM public.otp_codes' >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  portal-app:
+    container_name: portal-app
+    image: chronos-portal-app:local
+    pull_policy: never
+    build: ./portal-app
+    environment:
+      DATABASE_URL: postgresql://chronos:${POSTGRES_PASSWORD}@records-db:5432/staster?sslmode=verify-full&sslrootcert=/keys/ca.pem
+    volumes:
+      - ./ca/ca.pem:/keys/ca.pem:ro
+    networks: [staster]
+    mem_limit: 128m
+    depends_on:
+      records-db: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8000/health]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  portal:
+    container_name: portal
+    <<: *nginx
+    image: chronos-portal:local
+    build: ./portal
+    environment: {HEALTH_PORT: 8443}
+    ports: ["127.0.0.1:8443:8443"]
+    volumes:
+      - ./portal/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./portal/certs:/keys:ro
+      - ../out/logs/portal:/var/log/nginx
+    depends_on:
+      portal-app: {condition: service_healthy}
+  reminders:
+    container_name: reminders
+    <<: *nginx
+    image: chronos-reminders:local
+    build: ./reminders
+    environment: {HEALTH_PORT: 8444}
+    ports: ["127.0.0.1:8444:8444"]
+    volumes:
+      - ./reminders/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./reminders/certs:/keys:ro
+      - ../out/logs/reminders:/var/log/nginx
+    depends_on:
+      portal-app: {condition: service_healthy}
+  partner-lab:
+    container_name: partner-lab
+    <<: *nginx
+    image: chronos-partner-lab:local
+    build: ./partner-lab
+    environment: {HEALTH_PORT: 8443}
+    volumes:
+      - ./partner-lab/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./partner-lab/certs:/keys:ro
+      - ../out/logs/partner-lab:/var/log/nginx
+    depends_on:
+      portal-app: {condition: service_healthy}
+  lab-api:
+    container_name: lab-api
+    image: chronos-lab-api:local
+    pull_policy: never
+    build: ./lab-api
+    environment:
+      OPENSSL_CONF: /app/openssl.cnf
+      CA_FILE: /keys/ca.pem
+    volumes:
+      - ./lab-api/openssl.cnf:/app/openssl.cnf:ro
+      - ./ca/ca.pem:/keys/ca.pem:ro
+    networks: [staster]
+    mem_limit: 128m
+    ports: ["127.0.0.1:8001:8001"]
+    depends_on:
+      partner-lab: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8001/health]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  ops-ssh:
+    container_name: ops-ssh
+    image: chronos-ops-ssh:local
+    pull_policy: never
+    build: ./ops-ssh
+    volumes:
+      - ./ops-ssh/sshd_config:/etc/ssh/sshd_config:ro
+      - ./ops-ssh/certs:/keys:ro
+    networks: [staster]
+    mem_limit: 128m
+    ports: ["127.0.0.1:2222:2222"]
+    healthcheck:
+      test: [CMD, /usr/sbin/sshd, -t]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+networks:
+  staster: {external: true, name: staster}
+volumes:
+  records-data:
