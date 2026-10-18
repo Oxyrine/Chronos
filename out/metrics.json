@@ -1,0 +1,230 @@
+{
+  "synthetic": true,
+  "measured_at": "2026-10-17T14:52:07Z",
+  "discovery": {
+    "status": "pending: demo/ground_truth.yaml or demo/topology.yaml not delivered by Lane 1"
+  },
+  "shelflife": {
+    "backend": "sklearn-hgb",
+    "model_version": "category-1.0.0",
+    "fixed_split": {
+      "validation": {
+        "n": 1389,
+        "macro_f1": 0.8214,
+        "accuracy": 0.9503,
+        "under_protection_rate": 0.0238,
+        "over_protection_rate": 0.0259,
+        "keyword_baseline": {
+          "n": 1389,
+          "macro_f1": 0.5907,
+          "accuracy": 0.6789,
+          "under_protection_rate": 0.2693,
+          "over_protection_rate": 0.0518
+        },
+        "misleading_names": {
+          "n": 142,
+          "model": {
+            "n": 142,
+            "macro_f1": 0.7511,
+            "accuracy": 0.8873,
+            "under_protection_rate": 0.0282,
+            "over_protection_rate": 0.0845
+          },
+          "keyword_baseline": {
+            "n": 142,
+            "macro_f1": 0.0608,
+            "accuracy": 0.4366,
+            "under_protection_rate": 0.5634,
+            "over_protection_rate": 0.0
+          }
+        },
+        "predict_ms_per_column": 0.192,
+        "backend": "sklearn-hgb"
+      },
+      "test": {
+        "n": 675,
+        "macro_f1": 0.7993,
+        "accuracy": 0.9289,
+        "under_protection_rate": 0.04,
+        "over_protection_rate": 0.0311,
+        "keyword_baseline": {
+          "n": 675,
+          "macro_f1": 0.591,
+          "accuracy": 0.6607,
+          "under_protection_rate": 0.2844,
+          "over_protection_rate": 0.0548
+        },
+        "misleading_names": {
+          "n": 62,
+          "model": {
+            "n": 62,
+            "macro_f1": 0.6273,
+            "accuracy": 0.8226,
+            "under_protection_rate": 0.0323,
+            "over_protection_rate": 0.1452
+          },
+          "keyword_baseline": {
+            "n": 62,
+            "macro_f1": 0.0488,
+            "accuracy": 0.3226,
+            "under_protection_rate": 0.6774,
+            "over_protection_rate": 0.0
+          }
+        },
+        "predict_ms_per_column": 0.179,
+        "backend": "sklearn-hgb"
+      },
+      "demo": {
+        "n": 36,
+        "macro_f1": 0.8212,
+        "accuracy": 0.9167,
+        "under_protection_rate": 0.0833,
+        "over_protection_rate": 0.0,
+        "keyword_baseline": {
+          "n": 36,
+          "macro_f1": 0.8381,
+          "accuracy": 0.8889,
+          "under_protection_rate": 0.1111,
+          "over_protection_rate": 0.0
+        },
+        "predict_ms_per_column": 1.033,
+        "backend": "sklearn-hgb"
+      }
+    },
+    "heldout_confusion_matrix": {
+      "genetic": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 0,
+        "identity": 0,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 0
+      },
+      "child_health": {
+        "genetic": 0,
+        "child_health": 25,
+        "clinical": 0,
+        "identity": 10,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 1,
+        "auth_secret": 0,
+        "non_sensitive": 8
+      },
+      "clinical": {
+        "genetic": 0,
+        "child_health": 3,
+        "clinical": 21,
+        "identity": 0,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 2
+      },
+      "identity": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 1,
+        "identity": 66,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 3
+      },
+      "financial": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 3,
+        "identity": 3,
+        "financial": 31,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 2
+      },
+      "contact": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 0,
+        "identity": 0,
+        "financial": 0,
+        "contact": 52,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 0
+      },
+      "pseudonymous_id": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 0,
+        "identity": 0,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 91,
+        "scheduling": 0,
+        "auth_secret": 0,
+        "non_sensitive": 0
+      },
+      "scheduling": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 8,
+        "identity": 0,
+        "financial": 1,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 42,
+        "auth_secret": 0,
+        "non_sensitive": 1
+      },
+      "auth_secret": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 0,
+        "identity": 0,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 52,
+        "non_sensitive": 0
+      },
+      "non_sensitive": {
+        "genetic": 0,
+        "child_health": 0,
+        "clinical": 1,
+        "identity": 0,
+        "financial": 0,
+        "contact": 0,
+        "pseudonymous_id": 0,
+        "scheduling": 0,
+        "auth_secret": 1,
+        "non_sensitive": 247
+      }
+    },
+    "targets": {
+      "heldout_macro_f1": 0.8,
+      "under_protection_rate": 0.05
+    },
+    "targets_met": false
+  },
+  "exposure": {
+    "status": "pending: out/runs/before and out/runs/after (Lane 7 client-mix runs) not present"
+  },
+  "performance": {
+    "discovery_scan_seconds": null,
+    "classify_ms_per_column": 0.179,
+    "anomaly_and_stream": "pending (P1)"
+  }
+}

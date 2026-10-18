@@ -37,6 +37,22 @@ def make_classifier(seed: int = 7):
         return "sklearn-hgb", HistGradientBoostingClassifier(max_iter=250, learning_rate=0.1, max_leaf_nodes=15, random_state=seed)
 
 
+MIN_CLASS_SHARE = 0.25  # rare classes are repeated up to this share of the largest class; the long-period classes are the rare ones
+
+
+def oversample(X: np.ndarray, y: np.ndarray, seed: int = 7) -> tuple[np.ndarray, np.ndarray]:
+    """Deterministic random oversampling. Without it a class that is 1.5% of the data (genetic) is learned as noise."""
+    rng = np.random.RandomState(seed)
+    counts = np.bincount(y, minlength=len(CATEGORIES))
+    floor = int(counts.max() * MIN_CLASS_SHARE)
+    idx = [np.arange(len(y))]
+    for c, n in enumerate(counts):
+        if 0 < n < floor:
+            idx.append(rng.choice(np.where(y == c)[0], floor - n, replace=True))
+    keep = np.concatenate(idx)
+    return X[keep], y[keep]
+
+
 class CategoryModel:
     def __init__(self):
         self.fb = FeatureBuilder()
@@ -45,7 +61,7 @@ class CategoryModel:
 
     def fit(self, recs: list[dict]) -> "CategoryModel":
         X = self.fb.fit(recs).transform(recs)
-        self.clf.fit(X, np.array([CATEGORIES.index(r["category"]) for r in recs]))
+        self.clf.fit(*oversample(X, np.array([CATEGORIES.index(r["category"]) for r in recs])))
         return self
 
     def proba(self, recs: list[dict]) -> np.ndarray:

@@ -43,7 +43,7 @@ ARCHETYPES = {
         "citizens": PERSON, "land_records": ["national_id", "full_name", "doc_number", "address", "created?"], "tax_filings": ["person_id", "amount", "currency", "national_id?"],
         "licences": ["person_id", "doc_number", "dob", "address?"], "form_drafts": ["token_hash", "sms_text", "send_at"], "benefit_claims": ["national_id", "amount", "status", "paid_at?"],
         "portal_sessions": SESSION, "otp_codes": OTP, "student_records": ["person_id", "grade", "teacher_remarks", "dob?", "label?"],
-        "disability_registry": ["person_id", "icd10", "blood_group", "allergy?", "growth?"], "school_enrolment": ["person_id", "full_name", "grade", "vaccine?", "slot?"], "service_routes": ["label", "status", "version", "country?"],
+        "biobank_samples": ["person_id", "gene_panel", "variant", "genotype?", "zygosity?"], "disability_registry": ["person_id", "icd10", "blood_group", "allergy?", "growth?"], "school_enrolment": ["person_id", "full_name", "grade", "vaccine?", "slot?"], "service_routes": ["label", "status", "version", "country?"],
     },
     "telecom": {
         "subscribers": PERSON, "call_records": ["person_id", "phone", "send_at", "version?"], "routing_cache": ["label", "country", "version", "created?"],
@@ -51,7 +51,7 @@ ARCHETYPES = {
         "support_tickets": ["person_id", "product_review", "status", "created?"], "sms_queue": ["phone", "sms_text", "send_at"], "portal_sessions": SESSION,
     },
     "ngo": {
-        "beneficiaries": PERSON, "case_files": ["person_id", "case_notes", "dob?", "address?"], "health_screening": ["person_id", "icd10", "vaccine", "growth", "clin_ts?"],
+        "beneficiaries": PERSON, "case_files": ["person_id", "case_notes", "dob?", "address?"], "genomic_screening": ["person_id", "variant", "zygosity", "gene_panel?", "clin_ts?"], "health_screening": ["person_id", "icd10", "vaccine", "growth", "clin_ts?"],
         "donations": ["person_id", "amount", "currency", "paid_at"], "sms_queue": ["person_id", "sms_text", "send_at"], "scheduled_visits": ["person_id", "slot", "send_at"], "payments_due": ["person_id", "amount", "currency", "paid_at"], "volunteer_login": SESSION,
         "distribution_log": ["person_id", "label", "send_at"], "otp_codes": OTP, "household_registry": ["person_id", "full_name", "national_id?", "phone", "address"],
     },
